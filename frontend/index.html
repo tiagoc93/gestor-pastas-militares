@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Pastas de Militares</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>Gestor de Pastas de Militares</h1>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="enviar">Enviar Documento</button>
+      <button class="tab" data-tab="buscar">Buscar Matrícula</button>
+      <button class="tab" data-tab="config">Configurações</button>
+    </nav>
+
+    <main class="content">
+      <!-- Aba: Enviar Documento -->
+      <section id="tab-enviar" class="tab-content active">
+        <div class="panel">
+          <h2>Enviar Documento</h2>
+
+          <div class="input-group">
+            <label for="matricula-envio">Matrícula</label>
+            <div class="input-row">
+              <input type="text" id="matricula-envio" placeholder="Ex: 1111111 ou 111111-1">
+              <button id="btn-adicionar" class="btn btn-primary">Adicionar</button>
+            </div>
+            <span class="error-msg" id="erro-matricula"></span>
+          </div>
+
+          <div class="destinos-panel">
+            <div class="destinos-header">
+              <h3>Destinos</h3>
+              <button id="btn-add-pasta" class="btn btn-secondary btn-sm">+ Pasta extra</button>
+            </div>
+            <ul id="lista-destinos" class="destinos-list">
+              <li class="empty-state">Nenhum destino adicionado</li>
+            </ul>
+          </div>
+
+          <div class="input-group">
+            <button id="btn-selecionar-arquivo" class="btn btn-secondary">Selecionar documento</button>
+            <span id="arquivo-selecionado" class="file-name"></span>
+            <button id="btn-limpar-arquivo" class="btn btn-icon" title="Limpar">✕</button>
+          </div>
+
+          <button id="btn-enviar" class="btn btn-success btn-large" disabled>Enviar</button>
+        </div>
+
+        <div class="log-panel">
+          <div class="log-header">
+            <h3>Log de Envio</h3>
+            <button id="btn-limpar-log" class="btn btn-sm">Limpar</button>
+          </div>
+          <ul id="log-envio" class="log-list"></ul>
+        </div>
+      </section>
+
+      <!-- Aba: Buscar Matrícula -->
+      <section id="tab-buscar" class="tab-content">
+        <div class="panel">
+          <h2>Buscar Matrícula</h2>
+
+          <div class="input-group">
+            <label for="matricula-busca">Matrícula</label>
+            <div class="input-row">
+              <input type="text" id="matricula-busca" placeholder="Ex: 1111111 ou 111111-1">
+              <button id="btn-buscar" class="btn btn-primary">Buscar e Copiar</button>
+            </div>
+            <span class="error-msg" id="erro-busca"></span>
+          </div>
+
+          <div id="resultado-busca" class="result-card hidden"></div>
+        </div>
+      </section>
+
+      <!-- Aba: Configurações -->
+      <section id="tab-config" class="tab-content">
+        <div class="panel">
+          <h2>Configurações</h2>
+
+          <div class="input-group">
+            <label for="pasta-raiz">Pasta Raiz (Z:)</label>
+            <div class="input-row">
+              <input type="text" id="pasta-raiz" placeholder="Selecione a pasta raiz..." readonly>
+              <button id="btn-selecionar-raiz" class="btn btn-secondary">Selecionar</button>
+            </div>
+            <span class="hint">Pasta compartilhada de rede onde estão as pastas dos militares</span>
+          </div>
+
+          <div class="input-group">
+            <label>Política de Sobrescrita</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="politica" value="sobrescrever" checked>
+                Sobrescrever sempre
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="politica" value="pular">
+                Pular se já existir
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="politica" value="renomear">
+                Criar cópia com sufixo
+              </label>
+            </div>
+          </div>
+
+          <button id="btn-salvar-config" class="btn btn-success">Salvar Configurações</button>
+          <span id="msg-config" class="success-msg"></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: Novo Militar -->
+  <div id="modal-novo-militar" class="modal hidden">
+    <div class="modal-content">
+      <h3>Pasta não encontrada</h3>
+      <p>Deseja criar a pasta para <strong id="modal-matricula"></strong>?</p>
+      <div class="input-group">
+        <label for="modal-nome">Nome completo do militar</label>
+        <input type="text" id="modal-nome" placeholder="Nome em maiúsculas">
+      </div>
+      <div class="modal-actions">
+        <button id="modal-btn-criar" class="btn btn-success">Criar pasta</button>
+        <button id="modal-btn-pular" class="btn btn-secondary">Pular este destino</button>
+        <button id="modal-btn-cancelar" class="btn btn-danger">Cancelar tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar Sobrescrita -->
+  <div id="modal-sobrescrita" class="modal hidden">
+    <div class="modal-content">
+      <h3>Pasta já existe</h3>
+      <p>A pasta de busca já existe. Deseja sobrescrever?</p>
+      <div class="modal-actions">
+        <button id="modal-btn-sobrescrever" class="btn btn-danger">Sobrescrever</button>
+        <button id="modal-btn-cancelar-sobrescrita" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+  <script type="module" src="components/aba-enviar.js"></script>
+  <script type="module" src="components/aba-buscar.js"></script>
+  <script type="module" src="components/configuracoes.js"></script>
+  <script type="module" src="components/log.js"></script>
+</body>
+</html>
