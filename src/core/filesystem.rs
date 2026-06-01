@@ -92,6 +92,47 @@ pub fn encontrar_todos_militares(
     Ok(resultados)
 }
 
+/// Busca flat: encontra o PRIMEIRO match (pasta ou arquivo) cujo nome come\u{00e7}a
+/// com a matr\u{00ed}cula, iterando todas as subpastas diretas da raiz (um n\u{00ed}vel apenas).
+/// Retorna apenas o primeiro resultado encontrado.
+pub fn buscar_pasta_militar_flat(
+    raiz: &Path,
+    matricula: &Matricula,
+) -> Result<Option<PathBuf>, AppError> {
+    if !raiz.exists() {
+        return Ok(None);
+    }
+
+    let digitos_lower = matricula.digitos.to_lowercase();
+    let hifen_lower = matricula.com_hifen.to_lowercase();
+
+    for subpasta_entry in fs::read_dir(raiz)? {
+        let subpasta_entry = subpasta_entry?;
+        let subpasta_path = subpasta_entry.path();
+
+        if !subpasta_path.is_dir() {
+            continue;
+        }
+
+        for entry in fs::read_dir(&subpasta_path)? {
+            let entry = entry?;
+            let nome = entry.file_name();
+            let nome_lower = nome.to_string_lossy().to_lowercase();
+            let nome_sem_hifen = nome_lower.replace("-", "");
+
+            let matchou = nome_lower.starts_with(&digitos_lower)
+                || nome_lower.starts_with(&hifen_lower)
+                || nome_sem_hifen.starts_with(&digitos_lower);
+
+            if matchou {
+                return Ok(Some(entry.path()));
+            }
+        }
+    }
+
+    Ok(None)
+}
+
 /// Cria a pasta de um novo militar.
 ///
 /// Nome: `{COM_HIFEN} - {NOME_EM_MAIUSCULAS}`
@@ -307,5 +348,73 @@ mod tests {
         let resultados = encontrar_todos_militares(raiz, &m).unwrap();
 
         assert!(resultados.is_empty());
+    }
+
+    #[test]
+    fn test_buscar_flat_primeiro_match() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub1 = raiz.join("aaa");
+        fs::create_dir_all(&sub1).unwrap();
+        fs::create_dir(sub1.join("111111-1 - FULANO")).unwrap();
+
+        let sub2 = raiz.join("bbb");
+        fs::create_dir_all(&sub2).unwrap();
+        fs::create_dir(sub2.join("111111-1 - CICLANO")).unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultado = buscar_pasta_militar_flat(raiz, &m).unwrap();
+
+        assert!(resultado.is_some());
+        let path = resultado.unwrap();
+        let path_str = path.to_string_lossy();
+        assert!(path_str.contains("FULANO") || path_str.contains("CICLANO"));
+    }
+
+    #[test]
+    fn test_buscar_flat_arquivo_solto() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub = raiz.join("docs");
+        fs::create_dir_all(&sub).unwrap();
+        fs::write(sub.join("111111-1 - doc.pdf"), b"conteudo").unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultado = buscar_pasta_militar_flat(raiz, &m).unwrap();
+
+        assert!(resultado.is_some());
+        assert!(resultado.unwrap().is_file());
+    }
+
+    #[test]
+    fn test_buscar_flat_nenhum_match() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub = raiz.join("aaa");
+        fs::create_dir_all(&sub).unwrap();
+        fs::create_dir(sub.join("999999-9 - OUTRO")).unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultado = buscar_pasta_militar_flat(raiz, &m).unwrap();
+
+        assert!(resultado.is_none());
+    }
+
+    #[test]
+    fn test_buscar_flat_case_insensitive() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub = raiz.join("aaa");
+        fs::create_dir_all(&sub).unwrap();
+        fs::create_dir(sub.join("111111-1 - FULANO")).unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultado = buscar_pasta_militar_flat(raiz, &m).unwrap();
+
+        assert!(resultado.is_some());
     }
 }
