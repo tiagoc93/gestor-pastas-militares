@@ -101,7 +101,7 @@
 
 ### 2.2 Módulo: Filesystem (`core/filesystem.rs`)
 
-- [ ] **T-15** Implementar função `buscar_pasta_militar_flat(raiz: &Path, matricula: &Matricula) -> Result<Option<PathBuf>, AppError>`:
+- [x] **T-15** Implementar função `buscar_pasta_militar_flat(raiz: &Path, matricula: &Matricula) -> Result<Option<PathBuf>, AppError>`:
   - **Busca flat na raiz** — itera todas as subpastas de raiz recursivamente
   - Procura entradas cujo nome começa com `matricula.digitos` OU `matricula.com_hifen` (case-insensitive)
   - Retorna a primeira pasta encontrada
@@ -157,14 +157,16 @@
 
 ### 2.4 Módulo: Erros (`errors.rs`)
 
-- [ ] **T-23** Definir enum `AppError` com variantes:
+- [x] **T-23** Definir enum `AppError` com variantes:
   - `MatriculaInvalida(String)`
   - `SubpastaInexistente(PathBuf)`
   - `MilitarNaoEncontrado(String)`
   - `ErroDeIO { path: PathBuf, fonte: std::io::Error }`
   - `PastaRaizNaoConfigurada`
   - `PastaDestinoInvalida(PathBuf)`
-- [ ] **T-24** Implementar `Display` para `AppError` com mensagens em português claras para o usuário
+  - `ArquivoNaoEncontrado(String)`
+  - `ErroDeSerializacao(String)`
+- [x] **T-24** Implementar `Display` para `AppError` com mensagens em português claras para o usuário
 
 ---
 
