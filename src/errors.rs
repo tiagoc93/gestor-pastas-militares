@@ -6,7 +6,10 @@ pub enum AppError {
     MatriculaInvalida(String),
     SubpastaInexistente(PathBuf),
     MilitarNaoEncontrado(String),
-    ErroDeIO { path: PathBuf, fonte: std::io::Error },
+    ErroDeIO {
+        path: PathBuf,
+        fonte: std::io::Error,
+    },
     PastaRaizNaoConfigurada,
     PastaDestinoInvalida(PathBuf),
     ArquivoNaoEncontrado(String),
@@ -98,10 +101,7 @@ mod tests {
     #[test]
     fn test_display_pasta_destino_invalida() {
         let e = AppError::PastaDestinoInvalida(PathBuf::from("/fake"));
-        assert_eq!(
-            e.to_string(),
-            "Pasta de destino inv\u{00e1}lida: /fake"
-        );
+        assert_eq!(e.to_string(), "Pasta de destino inv\u{00e1}lida: /fake");
     }
 
     #[test]
@@ -113,10 +113,7 @@ mod tests {
     #[test]
     fn test_display_subpasta_inexistente() {
         let e = AppError::SubpastaInexistente(PathBuf::from("/inexistente"));
-        assert_eq!(
-            e.to_string(),
-            "Subpasta inexistente: /inexistente"
-        );
+        assert_eq!(e.to_string(), "Subpasta inexistente: /inexistente");
     }
 
     #[test]

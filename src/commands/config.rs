@@ -56,11 +56,9 @@ pub fn salvar_config(config: AppConfigDto) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn selecionar_pasta_raiz(
-    app: tauri::AppHandle,
-) -> Result<Option<String>, String> {
-    use tauri_plugin_dialog::DialogExt;
+pub fn selecionar_pasta_raiz(app: tauri::AppHandle) -> Result<Option<String>, String> {
     use std::sync::mpsc::channel;
+    use tauri_plugin_dialog::DialogExt;
 
     let (tx, rx) = channel();
     app.dialog().file().pick_folder(move |path| {
@@ -69,17 +67,16 @@ pub fn selecionar_pasta_raiz(
 
     let path = rx.recv().map_err(|e| e.to_string())?;
 
-    Ok(path.map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
+    Ok(path
+        .map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
         .transpose()
         .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?)
 }
 
 #[tauri::command]
-pub fn selecionar_arquivo(
-    app: tauri::AppHandle,
-) -> Result<Option<String>, String> {
-    use tauri_plugin_dialog::DialogExt;
+pub fn selecionar_arquivo(app: tauri::AppHandle) -> Result<Option<String>, String> {
     use std::sync::mpsc::channel;
+    use tauri_plugin_dialog::DialogExt;
 
     let (tx, rx) = channel();
     app.dialog().file().pick_file(move |path| {
@@ -88,7 +85,8 @@ pub fn selecionar_arquivo(
 
     let path = rx.recv().map_err(|e| e.to_string())?;
 
-    Ok(path.map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
+    Ok(path
+        .map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
         .transpose()
         .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?)
 }

@@ -9,8 +9,8 @@ mod errors;
 
 use commands::{
     adicionar_matricula, buscar_matricula, carregar_config, confirmar_sobrescrita_busca,
-    criar_pasta_militar, enviar_documento, salvar_config, selecionar_pasta_raiz,
-    selecionar_arquivo, verificar_pasta_militar,
+    criar_pasta_militar, enviar_documento, salvar_config, selecionar_arquivo,
+    selecionar_pasta_raiz, verificar_pasta_militar,
 };
 
 fn main() {
