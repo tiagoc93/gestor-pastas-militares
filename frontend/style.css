@@ -359,6 +359,10 @@ input[readonly] {
   gap: var(--space-2);
 }
 
+.btn-spinner[hidden] {
+  display: none !important;
+}
+
 .spinner {
   width: 18px;
   height: 18px;

@@ -13,12 +13,12 @@ use tempfile::TempDir;
 ///
 /// ```text
 /// temp_root/
-/// ├── 11111/
+/// ├── LEV PM 111/
 /// │   ├── 111111-1 - FULANO DE TAL/
 /// │   │   └── documento.txt
 /// │   └── 111112-2 - OUTRO/
 /// │       └── doc.pdf
-/// ├── 99999/
+/// ├── LEV PM 999/
 /// │   └── 999999-9 - SEM RELACAO/
 /// │       └── arquivo.txt
 /// ```
@@ -26,15 +26,15 @@ fn setup_test_structure() -> TempDir {
     let temp = TempDir::new().unwrap();
     let root = temp.path();
 
-    let fulano = root.join("11111").join("111111-1 - FULANO DE TAL");
+    let fulano = root.join("LEV PM 111").join("111111-1 - FULANO DE TAL");
     fs::create_dir_all(&fulano).unwrap();
     fs::write(fulano.join("documento.txt"), "conteudo fulano").unwrap();
 
-    let outro = root.join("11111").join("111112-2 - OUTRO");
+    let outro = root.join("LEV PM 111").join("111112-2 - OUTRO");
     fs::create_dir_all(&outro).unwrap();
     fs::write(outro.join("doc.pdf"), "conteudo pdf").unwrap();
 
-    let sem_relacao = root.join("99999").join("999999-9 - SEM RELACAO");
+    let sem_relacao = root.join("LEV PM 999").join("999999-9 - SEM RELACAO");
     fs::create_dir_all(&sem_relacao).unwrap();
     fs::write(sem_relacao.join("arquivo.txt"), "conteudo sem relacao").unwrap();
 
@@ -78,11 +78,11 @@ fn test_enviar_matricula_inexistente_cria_pasta() {
     let m = Matricula::parse("777777-7").unwrap();
     let pasta = criar_pasta_militar(raiz, &m, "SETIMO MILITAR").unwrap();
 
-    // Assert: pasta criada em 77777/777777-7 - SETIMO MILITAR/
+    // Assert: pasta criada em LEV PM 777/777777-7 - SETIMO MILITAR/
     assert!(pasta.exists());
     let pasta_str = pasta.to_string_lossy();
     assert!(pasta_str.contains("777777-7 - SETIMO MILITAR"));
-    assert!(raiz.join("77777").exists());
+    assert!(raiz.join("LEV PM 777").exists());
 }
 
 // ============================================================================
@@ -122,12 +122,12 @@ fn test_enviar_multiplas_matriculas() {
     assert_eq!(sucessos, 2);
     assert_eq!(falhas, 1);
     assert!(raiz
-        .join("11111")
+        .join("LEV PM 111")
         .join("111111-1 - FULANO DE TAL")
         .join("origem.txt")
         .exists());
     assert!(raiz
-        .join("11111")
+        .join("LEV PM 111")
         .join("111112-2 - OUTRO")
         .join("origem.txt")
         .exists());
@@ -268,11 +268,11 @@ fn test_enviar_arquivo_grande() {
 
 #[test]
 fn test_busca_flat_encontra_em_subpasta_errada() {
-    // Arrange: matrícula 111111-1 está em 99999/ (não na subpasta correta 11111/)
+    // Arrange: matrícula 111111-1 está em LEV PM 999/ (não na subpasta correta LEV PM 111/)
     let temp = TempDir::new().unwrap();
     let raiz = temp.path();
 
-    let sub_errada = raiz.join("99999").join("111111-1 - FULANO DE TAL");
+    let sub_errada = raiz.join("LEV PM 999").join("111111-1 - FULANO DE TAL");
     fs::create_dir_all(&sub_errada).unwrap();
     fs::write(sub_errada.join("doc.txt"), "conteudo").unwrap();
 
@@ -284,6 +284,6 @@ fn test_busca_flat_encontra_em_subpasta_errada() {
     assert!(resultado.is_some());
     let path = resultado.unwrap();
     let path_str = path.to_string_lossy();
-    assert!(path_str.contains("99999"));
+    assert!(path_str.contains("LEV PM 999"));
     assert!(path_str.contains("FULANO DE TAL"));
 }

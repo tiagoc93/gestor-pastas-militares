@@ -21,7 +21,7 @@ impl FromStr for PoliticaSobrescrita {
         match s.to_lowercase().as_str() {
             "sobrescrever" => Ok(PoliticaSobrescrita::Sobrescrever),
             "pular" => Ok(PoliticaSobrescrita::Pular),
-            "renomearcomsufixo" | "renomear_com_sufixo" | "renomear com sufixo" => {
+            "renomear" | "renomearcomsufixo" | "renomear_com_sufixo" | "renomear com sufixo" => {
                 Ok(PoliticaSobrescrita::RenomearComSufixo)
             }
             _ => Err(AppError::MatriculaInvalida(format!(
@@ -77,11 +77,15 @@ pub fn encontrar_todos_militares(
     let mut resultados = Vec::new();
 
     if !raiz.exists() {
+        log::warn!("Pasta raiz não existe: {:?}", raiz);
         return Ok(resultados);
     }
 
     let digitos_lower = matricula.digitos.to_lowercase();
     let hifen_lower = matricula.com_hifen.to_lowercase();
+
+    log::info!("Buscando matrícula: digitos={}, com_hifen={}", digitos_lower, hifen_lower);
+    log::info!("Pasta raiz: {:?}", raiz);
 
     for subpasta_entry in fs::read_dir(raiz)? {
         let subpasta_entry = subpasta_entry?;
@@ -90,6 +94,8 @@ pub fn encontrar_todos_militares(
         if !subpasta_path.is_dir() {
             continue;
         }
+
+        log::debug!("Iterando subpasta: {:?}", subpasta_path);
 
         for entry in fs::read_dir(&subpasta_path)? {
             let entry = entry?;
@@ -102,11 +108,13 @@ pub fn encontrar_todos_militares(
                 || nome_sem_hifen.starts_with(&digitos_lower);
 
             if matchou {
+                log::info!("Match encontrado: {:?}", entry.path());
                 resultados.push(entry.path());
             }
         }
     }
 
+    log::info!("Total de matches encontrados: {}", resultados.len());
     Ok(resultados)
 }
 
@@ -118,11 +126,15 @@ pub fn buscar_pasta_militar_flat(
     matricula: &Matricula,
 ) -> Result<Option<PathBuf>, AppError> {
     if !raiz.exists() {
+        log::warn!("Pasta raiz não existe: {:?}", raiz);
         return Ok(None);
     }
 
     let digitos_lower = matricula.digitos.to_lowercase();
     let hifen_lower = matricula.com_hifen.to_lowercase();
+
+    log::info!("Busca flat: digitos={}, com_hifen={}", digitos_lower, hifen_lower);
+    log::info!("Busca flat: raiz={:?}", raiz);
 
     for subpasta_entry in fs::read_dir(raiz)? {
         let subpasta_entry = subpasta_entry?;
@@ -131,6 +143,8 @@ pub fn buscar_pasta_militar_flat(
         if !subpasta_path.is_dir() {
             continue;
         }
+
+        log::debug!("Busca flat: iterando subpasta {:?}", subpasta_path);
 
         for entry in fs::read_dir(&subpasta_path)? {
             let entry = entry?;
@@ -143,11 +157,13 @@ pub fn buscar_pasta_militar_flat(
                 || nome_sem_hifen.starts_with(&digitos_lower);
 
             if matchou {
+                log::info!("Busca flat: match encontrado {:?}", entry.path());
                 return Ok(Some(entry.path()));
             }
         }
     }
 
+    log::info!("Busca flat: nenhum match encontrado");
     Ok(None)
 }
 
@@ -160,12 +176,14 @@ pub fn criar_pasta_militar(
     nome_completo: &str,
 ) -> Result<PathBuf, AppError> {
     let subpasta_path = raiz.join(&matricula.subpasta);
+    log::info!("Criando pasta militar: subpasta={:?}", subpasta_path);
     fs::create_dir_all(&subpasta_path)?;
 
     let nome_maiuscular = nome_completo.trim().to_uppercase();
     let nome_pasta = format!("{} - {}", matricula.com_hifen, nome_maiuscular);
     let caminho_pasta = subpasta_path.join(&nome_pasta);
 
+    log::info!("Criando pasta militar: caminho={:?}", caminho_pasta);
     fs::create_dir_all(&caminho_pasta)?;
 
     Ok(caminho_pasta)
@@ -274,7 +292,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let raiz = tmp.path();
 
-        let subpasta = raiz.join("11111");
+        let subpasta = raiz.join("LEV PM 111");
         fs::create_dir_all(&subpasta).unwrap();
         fs::create_dir(subpasta.join("111111-1 - FULANO DE TAL")).unwrap();
 
@@ -327,7 +345,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let raiz = tmp.path();
 
-        let sub1 = raiz.join("11111");
+        let sub1 = raiz.join("LEV PM 111");
         fs::create_dir_all(&sub1).unwrap();
         fs::create_dir(sub1.join("111111-1 - FULANO DE TAL")).unwrap();
 
@@ -346,7 +364,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let raiz = tmp.path();
 
-        let sub = raiz.join("11111");
+        let sub = raiz.join("LEV PM 111");
         fs::create_dir_all(&sub).unwrap();
         fs::write(sub.join("111111-1 - documento.pdf"), b"conteudo").unwrap();
 

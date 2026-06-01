@@ -2,10 +2,22 @@ use crate::core::{AppConfig, PoliticaSobrescrita, Tema};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppConfigDto {
+    #[serde(default)]
     pub pasta_raiz: Option<String>,
+    #[serde(default = "default_politica")]
     pub politica_sobrescrita: String,
+    #[serde(default = "default_tema")]
     pub tema: String,
+}
+
+fn default_politica() -> String {
+    "sobrescrever".to_string()
+}
+
+fn default_tema() -> String {
+    "escuro".to_string()
 }
 
 impl From<AppConfig> for AppConfigDto {
@@ -56,37 +68,33 @@ pub fn salvar_config(config: AppConfigDto) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn selecionar_pasta_raiz(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    use std::sync::mpsc::channel;
+pub async fn selecionar_pasta_raiz(app: tauri::AppHandle) -> Result<Option<String>, String> {
     use tauri_plugin_dialog::DialogExt;
 
-    let (tx, rx) = channel();
-    app.dialog().file().pick_folder(move |path| {
-        let _ = tx.send(path);
-    });
+    let path = app.dialog().file().blocking_pick_folder();
 
-    let path = rx.recv().map_err(|e| e.to_string())?;
-
-    Ok(path
-        .map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
-        .transpose()
-        .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?)
+    match path {
+        Some(p) => Ok(Some(
+            p.into_path()
+                .map(|pb| pb.to_string_lossy().to_string())
+                .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?,
+        )),
+        None => Ok(None),
+    }
 }
 
 #[tauri::command]
-pub fn selecionar_arquivo(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    use std::sync::mpsc::channel;
+pub async fn selecionar_arquivo(app: tauri::AppHandle) -> Result<Option<String>, String> {
     use tauri_plugin_dialog::DialogExt;
 
-    let (tx, rx) = channel();
-    app.dialog().file().pick_file(move |path| {
-        let _ = tx.send(path);
-    });
+    let path = app.dialog().file().blocking_pick_file();
 
-    let path = rx.recv().map_err(|e| e.to_string())?;
-
-    Ok(path
-        .map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
-        .transpose()
-        .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?)
+    match path {
+        Some(p) => Ok(Some(
+            p.into_path()
+                .map(|pb| pb.to_string_lossy().to_string())
+                .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?,
+        )),
+        None => Ok(None),
+    }
 }

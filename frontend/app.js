@@ -4,9 +4,11 @@ export async function invokeCommand(cmd, args = {}) {
     throw new Error('Tauri n\u00e3o est\u00e1 dispon\u00edvel. Execute dentro do aplicativo Tauri.');
   }
   const { invoke } = window.__TAURI__.core;
+  console.log(`invokeCommand: ${cmd}`, JSON.stringify(args));
   try {
     return await invoke(cmd, args);
   } catch (e) {
+    console.error(`invokeCommand error: ${cmd}`, e);
     throw new Error(formatError(e));
   }
 }
@@ -92,8 +94,8 @@ export async function carregarConfigInicial() {
   try {
     const config = await invokeCommand('carregar_config');
     if (config) {
-      state.pastaRaiz = config.pasta_raiz || null;
-      state.politica = config.politica_sobrescrita || 'sobrescrever';
+      state.pastaRaiz = config.pastaRaiz || null;
+      state.politica = config.politicaSobrescrita || 'sobrescrever';
       state.tema = config.tema || 'escuro';
     }
   } catch {

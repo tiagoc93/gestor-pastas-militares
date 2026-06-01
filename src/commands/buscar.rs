@@ -6,6 +6,7 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct BuscaResult {
     pub status: String,
     pub path_destino: Option<String>,

@@ -13,6 +13,7 @@ use tauri::Emitter;
 // ============================================================================
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MatriculaInfo {
     pub digitos: String,
     pub com_hifen: String,
@@ -96,12 +97,31 @@ pub fn criar_pasta_militar(
     matricula: String,
     nome_completo: String,
 ) -> Result<String, String> {
-    let m = Matricula::parse(&matricula).map_err(|e| e.to_string())?;
+    log::info!("criar_pasta_militar: raiz={}, matricula={}, nome={}", raiz, matricula, nome_completo);
+    
+    let m = Matricula::parse(&matricula).map_err(|e| {
+        log::error!("Erro ao parsear matrícula: {}", e);
+        e.to_string()
+    })?;
+    
+    log::info!("Matrícula parseada: digitos={}, subpasta={}", m.digitos, m.subpasta);
+    
     let raiz_path = Path::new(&raiz);
+    
+    if !raiz_path.exists() {
+        log::error!("Pasta raiz não existe: {:?}", raiz_path);
+        return Err(format!("Pasta raiz não existe: {}", raiz));
+    }
 
     core_criar_pasta_militar(raiz_path, &m, &nome_completo)
-        .map(|p| p.to_string_lossy().to_string())
-        .map_err(|e| e.to_string())
+        .map(|p| {
+            log::info!("Pasta criada com sucesso: {:?}", p);
+            p.to_string_lossy().to_string()
+        })
+        .map_err(|e| {
+            log::error!("Erro ao criar pasta: {}", e);
+            e.to_string()
+        })
 }
 
 // ============================================================================

@@ -14,6 +14,7 @@ use commands::{
 };
 
 fn main() {
+    env_logger::init();
     errors::__garantir_variants_completeness();
 
     tauri::Builder::default()

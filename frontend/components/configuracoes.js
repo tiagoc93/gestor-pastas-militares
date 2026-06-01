@@ -21,15 +21,18 @@ const elBtnSalvar = document.getElementById('btn-salvar-config');
 async function carregarConfig() {
   try {
     const config = await invokeCommand('carregar_config');
-    state.pastaRaiz = config.pasta_raiz || null;
-    state.politica = config.politica_sobrescrita || 'sobrescrever';
+    console.log('Config carregado:', config);
+    state.pastaRaiz = config.pastaRaiz || null;
+    state.politica = config.politicaSobrescrita || 'sobrescrever';
     state.tema = config.tema || 'escuro';
+    console.log('State após carregar:', { pastaRaiz: state.pastaRaiz, politica: state.politica, tema: state.tema });
 
     elPastaRaiz.value = state.pastaRaiz || '';
     atualizarAvisoPasta();
     selecionarRadio('politica', state.politica);
     selecionarRadio('tema', state.tema);
   } catch (e) {
+    console.error('Erro ao carregar config:', e);
     showToast('Erro ao carregar configura\u00e7\u00f5es', 'error');
   }
 }
@@ -105,13 +108,17 @@ document.querySelectorAll('input[name="tema"]').forEach(radio => {
 elBtnSalvar.addEventListener('click', async () => {
   setButtonLoading(elBtnSalvar, true);
 
+  const configParaSalvar = {
+    pastaRaiz: state.pastaRaiz || null,
+    politicaSobrescrita: state.politica || 'sobrescrever',
+    tema: state.tema || 'escuro',
+  };
+
+  console.log('Salvando config:', configParaSalvar);
+
   try {
     await invokeCommand('salvar_config', {
-      config: {
-        pasta_raiz: state.pastaRaiz || null,
-        politica_sobrescrita: state.politica,
-        tema: state.tema,
-      },
+      config: configParaSalvar,
     });
     showToast('Configura\u00e7\u00f5es salvas com sucesso', 'success');
   } catch (e) {

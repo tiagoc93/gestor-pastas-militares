@@ -69,7 +69,7 @@ async function realizarBusca(sobrescrever = false) {
     });
 
     if (result.status === 'ja_existe') {
-      modalSobrescritaPath.textContent = result.path_destino || 'Downloads/Busca-Matriculas';
+      modalSobrescritaPath.textContent = result.pathDestino || 'Downloads/Busca-Matriculas';
       modalSobrescrita.hidden = false;
       setButtonLoading(elBtnBuscar, false);
       return;
@@ -87,9 +87,9 @@ function exibirSucesso(result) {
   elResultado.classList.remove('hidden', 'error');
   elResultado.classList.add('success');
 
-  const path = result.path_destino || '';
-  const arquivos = result.arquivos_copiados ?? 0;
-  const matches = result.matches_encontrados ?? 0;
+  const path = result.pathDestino || '';
+  const arquivos = result.arquivosCopiados ?? 0;
+  const matches = result.matchesEncontrados ?? 0;
 
   elResultado.innerHTML = `
     <p><strong>Busca conclu\u00edda com sucesso!</strong></p>

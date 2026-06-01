@@ -4,12 +4,13 @@
   "version": "0.1.0",
   "identifier": "br.mil.gestor-pastas",
   "build": {
-    "frontendDist": "../frontend",
+    "frontendDist": "./frontend",
     "devUrl": "http://localhost:8080",
-    "beforeDevCommand": "cd .. && python3 -m http.server 8080",
+    "beforeDevCommand": "/home/tiago/Projetos/gestor-pastas-militares/dev-server.sh",
     "beforeBuildCommand": ""
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "Gestor de Pastas de Militares",

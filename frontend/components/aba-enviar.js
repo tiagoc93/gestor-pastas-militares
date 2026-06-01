@@ -74,7 +74,7 @@ async function adicionarMatricula() {
 
   try {
     const info = await invokeCommand('adicionar_matricula', { matricula: valor });
-    const label = info.com_hifen || info.digitos;
+    const label = info.comHifen || info.digitos;
     state.destinos.push({ tipo: 'matricula', valor: info.digitos, label });
     elMatricula.value = '';
     renderDestinos();
@@ -215,6 +215,7 @@ function fecharModalNovo() {
 
 modalBtnCriar.addEventListener('click', () => {
   const nome = modalNome.value.trim().toUpperCase();
+  console.log('Modal criar clicado, nome:', nome);
   if (!nome) {
     showToast('Informe o nome completo do militar', 'warning');
     modalNome.focus();
@@ -274,8 +275,10 @@ elBtnEnviar.addEventListener('click', async () => {
   for (const destino of matriculasSemPasta) {
     try {
       const res = await abrirModalNovo(destino.label);
+      console.log('Resposta modal:', res);
       if (res.acao === 'criar') {
         nomesCriar.set(destino.valor, res.nome);
+        console.log('Adicionado ao Map:', destino.valor, '->', res.nome);
       }
       // se 'pular', n\u00e3o adiciona ao mapa
     } catch (e) {
@@ -284,13 +287,16 @@ elBtnEnviar.addEventListener('click', async () => {
     }
   }
 
+  console.log('Map nomesCriar final:', Array.from(nomesCriar.entries()));
+
   // Cria pastas
   for (const [matricula, nome] of nomesCriar) {
+    console.log('Criando pasta:', { matricula, nome, pastaRaiz: state.pastaRaiz });
     try {
       await invokeCommand('criar_pasta_militar', {
         raiz: state.pastaRaiz,
         matricula,
-        nome_completo: nome,
+        nomeCompleto: nome,
       });
       showToast(`Pasta criada para ${matricula}`, 'success');
     } catch (e) {

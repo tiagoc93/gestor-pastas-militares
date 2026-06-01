@@ -43,11 +43,12 @@ impl Matricula {
             format!("{}-{}", prefix, suffix)
         };
 
-        let subpasta = if digitos.len() > 2 {
-            digitos[..digitos.len() - 2].to_string()
+        let prefixo = if digitos.len() > 4 {
+            &digitos[..digitos.len() - 4]
         } else {
-            digitos.clone()
+            &digitos
         };
+        let subpasta = format!("LEV PM {}", prefixo);
 
         Ok(Matricula {
             digitos,
@@ -66,7 +67,7 @@ mod tests {
         let m = Matricula::parse("111111-1").unwrap();
         assert_eq!(m.digitos, "1111111");
         assert_eq!(m.com_hifen, "111111-1");
-        assert_eq!(m.subpasta, "11111");
+        assert_eq!(m.subpasta, "LEV PM 111");
     }
 
     #[test]
@@ -74,7 +75,7 @@ mod tests {
         let m = Matricula::parse("1111111").unwrap();
         assert_eq!(m.digitos, "1111111");
         assert_eq!(m.com_hifen, "111111-1");
-        assert_eq!(m.subpasta, "11111");
+        assert_eq!(m.subpasta, "LEV PM 111");
     }
 
     #[test]
@@ -82,7 +83,7 @@ mod tests {
         let m = Matricula::parse("111").unwrap();
         assert_eq!(m.digitos, "111");
         assert_eq!(m.com_hifen, "11-1");
-        assert_eq!(m.subpasta, "1");
+        assert_eq!(m.subpasta, "LEV PM 111");
     }
 
     #[test]
@@ -90,7 +91,7 @@ mod tests {
         let m = Matricula::parse("9207901").unwrap();
         assert_eq!(m.digitos, "9207901");
         assert_eq!(m.com_hifen, "920790-1");
-        assert_eq!(m.subpasta, "92079");
+        assert_eq!(m.subpasta, "LEV PM 920");
     }
 
     #[test]
@@ -122,6 +123,14 @@ mod tests {
         let m = Matricula::parse("12345678").unwrap();
         assert_eq!(m.digitos, "12345678");
         assert_eq!(m.com_hifen, "1234567-8");
-        assert_eq!(m.subpasta, "123456");
+        assert_eq!(m.subpasta, "LEV PM 1234");
+    }
+
+    #[test]
+    fn test_parse_6_digitos() {
+        let m = Matricula::parse("14320-0").unwrap();
+        assert_eq!(m.digitos, "143200");
+        assert_eq!(m.com_hifen, "14320-0");
+        assert_eq!(m.subpasta, "LEV PM 14");
     }
 }
