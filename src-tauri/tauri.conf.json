@@ -5,8 +5,8 @@
   "identifier": "br.mil.gestor-pastas",
   "build": {
     "frontendDist": "../frontend",
-    "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "",
+    "devUrl": "http://localhost:8080",
+    "beforeDevCommand": "cd .. && python3 -m http.server 8080",
     "beforeBuildCommand": ""
   },
   "app": {
