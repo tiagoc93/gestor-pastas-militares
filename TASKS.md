@@ -227,49 +227,51 @@
 
 ### 4.1 Estrutura base
 
-- [ ] **T-36** Criar `index.html` com estrutura de abas:
+- [x] **T-36** Criar `index.html` com estrutura de abas:
   - Aba "Enviar Documento"
   - Aba "Buscar Matrícula"
   - Aba "Configurações"
-- [ ] **T-37** Criar `style.css` com design system:
+- [x] **T-37** Criar `style.css` com design system OLED Dark:
   - Variáveis CSS para cores, tipografia e espaçamentos
-  - Tema escuro base (ou claro, conforme **P-03**)
+  - Tema escuro OLED Dark Admin (#0A0A0F background, #13131A surface)
   - Classes utilitárias para botões, inputs, cards, badges de status
   - Estilo para área de log (scrollável, fonte monospace)
   - Animação sutil de loading/progresso
-- [ ] **T-38** Criar utilitário `app.js` com funções compartilhadas:
-  - Wrapper para `window.__TAURI__.invoke`
+- [x] **T-38** Criar utilitário `app.js` com funções compartilhadas:
+  - Wrapper para `window.__TAURI__.core.invoke`
   - Função de formatação de erros para exibição
   - Gerenciamento de estado global simples (objeto JS)
+  - Navegação de tabs
+  - Toast notifications
 
 ### 4.2 Aba: Enviar Documento (`components/aba-enviar.js`)
 
-- [ ] **T-39** Implementar campo de entrada de matrícula:
+- [x] **T-39** Implementar campo de entrada de matrícula:
   - Input de texto com placeholder `"Ex: 1111111 ou 111111-1"`
   - Botão "Adicionar" ou Enter para confirmar
   - Chama comando `adicionar_matricula` ao confirmar
   - Exibe erro inline se matrícula inválida
-- [ ] **T-40** Implementar lista de destinos:
+- [x] **T-40** Implementar lista de destinos:
   - Renderiza cada matrícula como badge/chip com ícone de pessoa e botão ✕ para remover
   - Renderiza cada pasta extra como badge/chip com ícone de pasta e botão ✕ para remover
   - Lista vazia exibe estado vazio com instrução
-- [ ] **T-41** Implementar botão "Adicionar pasta extra":
+- [x] **T-41** Implementar botão "Adicionar pasta extra":
   - Chama comando `selecionar_pasta_raiz` (dialog de pasta)
   - Adiciona path retornado à lista de destinos
-- [ ] **T-42** Implementar seleção de documento:
+- [x] **T-42** Implementar seleção de documento:
   - Botão "Selecionar documento" abre file picker (`dialog::open`)
   - Exibe nome e path do arquivo selecionado abaixo do botão
   - Botão de limpar seleção (✕)
-- [ ] **T-43** Implementar botão "Enviar":
+- [x] **T-43** Implementar botão "Enviar":
   - Desabilitado se lista de destinos vazia ou nenhum documento selecionado
   - Ao clicar, verifica se alguma matrícula não tem pasta existente
   - Para cada matrícula sem pasta: exibe modal pedindo nome completo do militar
   - Após coleta de nomes, inicia envio
-- [ ] **T-44** Implementar modal "Novo Militar":
+- [x] **T-44** Implementar modal "Novo Militar":
   - Título: `"Pasta não encontrada para {MATRICULA}"`
   - Campo: Nome completo do militar (obrigatório, converte para maiúsculas automaticamente)
   - Botões: Criar pasta / Pular este destino / Cancelar tudo
-- [ ] **T-45** Implementar área de log em tempo real:
+- [x] **T-45** Implementar área de log em tempo real:
   - Escuta evento `"progresso-envio"` do Tauri
   - Cada entrada: ícone ✓ (verde) ou ✗ (vermelho), nome do destino, mensagem
   - Auto-scroll para última entrada
@@ -278,31 +280,31 @@
 
 ### 4.3 Aba: Buscar Matrícula (`components/aba-buscar.js`)
 
-- [ ] **T-46** Implementar campo de entrada de matrícula:
+- [x] **T-46** Implementar campo de entrada de matrícula:
   - Mesmo padrão do campo da aba de envio
-- [ ] **T-47** Implementar botão "Buscar e Copiar":
+- [x] **T-47** Implementar botão "Buscar e Copiar":
   - Desabilitado se campo vazio
   - Exibe spinner enquanto processa
-- [ ] **T-48** Implementar exibição de resultado:
+- [x] **T-48** Implementar exibição de resultado:
   - Sucesso: card verde com ícone ✓, path de destino, quantidade de arquivos copiados, botão "Abrir pasta"
   - Erro (não encontrado): card vermelho com ícone ✗ e mensagem clara
   - Pasta raiz não configurada: aviso com link para aba de configurações
-- [ ] **T-49** Implementar modal de confirmação de sobrescrita:
+- [x] **T-49** Implementar modal de confirmação de sobrescrita:
   - Aparece quando `~/Downloads/Busca-Matriculas/{matricula}` já existe
   - Opções: Sobrescrever / Cancelar
 
 ### 4.4 Aba: Configurações (`components/configuracoes.js`)
 
-- [ ] **T-50** Carregar config atual ao abrir a aba (`carregar_config`)
-- [ ] **T-51** Implementar campo de pasta raiz (Z:):
+- [x] **T-50** Carregar config atual ao abrir a aba (`carregar_config`)
+- [x] **T-51** Implementar campo de pasta raiz (Z:):
   - Input de texto com path atual
   - Botão "Selecionar" abre dialog de pasta
   - Exibe aviso visual se pasta não estiver configurada
-- [ ] **T-52** Implementar seletor de política de sobrescrita:
+- [x] **T-52** Implementar seletor de política de sobrescrita:
   - Radio buttons: Sobrescrever sempre / Perguntar / Criar cópia com sufixo
-- [ ] **T-53** Implementar seletor de tema (quando **P-03** definido)
-- [ ] **T-54** Botão "Salvar configurações" chama `salvar_config`
-- [ ] **T-55** Exibir toast de confirmação após salvar
+- [x] **T-53** Implementar seletor de tema (quando **P-03** definido)
+- [x] **T-54** Botão "Salvar configurações" chama `salvar_config`
+- [x] **T-55** Exibir toast de confirmação após salvar
 
 ---
 
