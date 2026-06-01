@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -11,6 +12,23 @@ pub enum PoliticaSobrescrita {
     Sobrescrever,
     Pular,
     RenomearComSufixo,
+}
+
+impl FromStr for PoliticaSobrescrita {
+    type Err = AppError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "sobrescrever" => Ok(PoliticaSobrescrita::Sobrescrever),
+            "pular" => Ok(PoliticaSobrescrita::Pular),
+            "renomearcomsufixo" | "renomear_com_sufixo" | "renomear com sufixo" => {
+                Ok(PoliticaSobrescrita::RenomearComSufixo)
+            }
+            _ => Err(AppError::MatriculaInvalida(format!(
+                "Política de sobrescrita inválida: {s}"
+            ))),
+        }
+    }
 }
 
 /// Estatísticas de uma cópia recursiva de pasta
