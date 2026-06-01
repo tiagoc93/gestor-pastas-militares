@@ -1,5 +1,6 @@
-use crate::core::{Matricula, AppConfig};
+use crate::core::{AppConfig, Matricula};
 use serde::{Deserialize, Serialize};
+use tauri::Emitter;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MatriculaInfo {

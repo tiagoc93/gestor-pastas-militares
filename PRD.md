@@ -103,6 +103,8 @@ O hífen sempre é inserido **entre o penúltimo e o último dígito:**
 
 O sistema deve aceitar a matrícula com ou sem hífen na entrada do usuário e normalizar internamente para ambas as formas na hora da busca.
 
+**Tamanho da matrícula:** de 3 a 8 dígitos. Entradas fora desse intervalo são rejeitadas.
+
 ---
 
 ## 6. Funções do App
@@ -151,18 +153,23 @@ O sistema deve aceitar a matrícula com ou sem hífen na entrada do usuário e n
 **Fluxo completo:**
 
 1. Usuário digita a matrícula (com ou sem hífen)
-2. App faz **busca flat na raiz** — procura em todas as subpastas
-3. Se não encontrar: exibe mensagem de erro
-4. Se encontrar: copia a pasta inteira (com subpastas e arquivos) para:
+2. App faz **busca flat na raiz** — itera por **todas** as subpastas procurando entries (pastas e arquivos) cujo nome comece com a matrícula (com ou sem hífen), case-insensitive
+3. Se não encontrar nenhum match: exibe mensagem de erro
+4. Se encontrar um ou mais matches: copia **todos** para:
    ```
-   ~/Downloads/Busca-Matriculas/{MATRICULA}/
+   ~/Downloads/Busca-Matriculas/{MATRICULA-COM-HIFEN}/
    ```
-5. Exibe confirmação com o path de destino
+   - Pastas são copiadas recursivamente
+   - Arquivos soltos são copiados individualmente
+   - Tudo é **mesclado** na mesma pasta de destino
+5. Exibe confirmação com o path de destino e quantidade de arquivos copiados
 
 **Comportamento da cópia:**
-- Copia recursiva (pasta inteira, incluindo subpastas)
+- Copia recursiva de pastas (incluindo subpastas)
+- Copia individual de arquivos soltos
 - Não remove da Z: — apenas copia
 - Se já existir em `Busca-Matriculas`, pergunta se deseja sobrescrever
+- Retorna quantidade total de matches encontrados e arquivos copiados
 
 ---
 
@@ -236,11 +243,11 @@ Duas seções/abas:
 
 ---
 
-## 11. Pendências
+## 11. Pendências Resolvidas
 
-| # | Item | Responsável |
+| # | Item | Decisão |
 |---|---|---|
-| 1 | Path completo da pasta Z: (Windows e Linux) | Usuário |
-| 2 | Definição de tema visual (claro/escuro) | Usuário |
-| 3 | Confirmar se matrícula pode ter mais de 7 dígitos | Usuário |
-| 4 | Confirmar comportamento ao sobrescrever arquivo já existente no destino | Usuário |
+| 1 | Path completo da pasta Z: (Windows e Linux) | Windows: `Z:\SS4_DADOS\00 - LEV PM` / Linux: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM` |
+| 2 | Definição de tema visual (claro/escuro) | Escuro |
+| 3 | Confirmar se matrícula pode ter mais de 7 dígitos | Sim, até 8 dígitos |
+| 4 | Confirmar comportamento ao sobrescrever arquivo já existente no destino | Criar cópia com sufixo timestamp |

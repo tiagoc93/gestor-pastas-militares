@@ -8,7 +8,7 @@ Aplicativo desktop para envio e busca de documentos em pasta compartilhada de re
 
 **Enviar documento:** selecione um arquivo e uma ou mais matrículas — o app localiza automaticamente a pasta de cada militar na rede e copia o documento para lá, sequencialmente, com log de sucesso e falha para cada destino. É possível adicionar pastas extras além das pastas dos militares.
 
-**Buscar matrícula:** digite uma matrícula e o app localiza a pasta do militar na rede e copia ela inteira para `~/Downloads/Busca-Matriculas`, sem precisar navegar manualmente pela estrutura de rede.
+**Buscar matrícula:** digite uma matrícula e o app faz uma **busca flat** em todas as subpastas da raiz, localizando todas as pastas e arquivos cujo nome comece com a matrícula. Tudo é copiado e mesclado em `~/Downloads/Busca-Matriculas/{matricula}/`, sem precisar navegar manualmente pela estrutura de rede.
 
 ---
 
@@ -167,7 +167,7 @@ gestor-pastas-militares/
 
 - Aceita entrada com ou sem hífen: `1111111` e `111111-1` são equivalentes
 - O hífen sempre fica entre o penúltimo e o último dígito
-- Tamanho mínimo: 3 dígitos
+- Tamanho: de 3 a 8 dígitos
 
 ### Subpasta na Z:
 
@@ -190,9 +190,16 @@ Exemplos:
   92079-1 - CICLANO DE TAL
 ```
 
-### Busca de pasta
+### Busca de pasta (Flat Search)
 
-A busca é feita por prefixo, case-insensitive. A pasta `111111-1 - FULANO DE TAL` é encontrada buscando por `1111111` ou `111111-1`.
+A busca é **flat**: itera por **todas** as subpastas da raiz procurando entries (pastas ou arquivos) cujo nome comece com a matrícula (com ou sem hífen), case-insensitive.
+
+- Encontra **todos** os matches (não apenas o primeiro)
+- Copia pastas recursivamente e arquivos individualmente
+- Mescla tudo na mesma pasta de destino: `~/Downloads/Busca-Matriculas/{matricula-com-hifen}/`
+- Se a pasta de destino já existir, pergunta se deseja sobrescrever
+
+**Exemplo:** buscando por `1111111`, o app encontra tanto `111111-1 - FULANO DE TAL` quanto `1111111 - OUTRO NOME` em qualquer subpasta da raiz.
 
 ### Criação de pasta
 
@@ -210,7 +217,7 @@ Na primeira execução, acesse a aba **Configurações** e defina:
 - **Pasta raiz (Z:):** path da pasta compartilhada de rede
   - Linux: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
   - Windows: `Z:\SS4_DADOS\00 - LEV PM`
-- **Política de sobrescrita:** o que fazer se o arquivo já existir no destino
+- **Política de sobrescrita:** o que fazer se o arquivo já existir no destino (padrão: criar cópia com sufixo timestamp)
 
 A configuração é salva localmente em:
 - Linux: `~/.config/gestor-militar/config.json`
@@ -227,17 +234,15 @@ A configuração é salva localmente em:
 
 ---
 
-## Pendências abertas
+## Pendências resolvidas
 
-Itens que aguardam informação do usuário antes de serem implementados:
-
-| # | Item |
-|---|---|
-| P-01 | Path da pasta Z: no Windows |
-| P-02 | Path equivalente da pasta Z: no Linux |
-| P-03 | Tema visual padrão (claro ou escuro) |
-| P-04 | Tamanho máximo de uma matrícula |
-| P-05 | Comportamento ao sobrescrever arquivo já existente no destino |
+| # | Item | Decisão |
+|---|---|---|
+| P-01 | Path da pasta Z: no Windows | `Z:\SS4_DADOS\00 - LEV PM` |
+| P-02 | Path equivalente da pasta Z: no Linux | `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM` |
+| P-03 | Tema visual padrão | Escuro |
+| P-04 | Tamanho máximo de uma matrícula | 8 dígitos |
+| P-05 | Comportamento ao sobrescrever arquivo | Criar cópia com sufixo timestamp |
 
 ---
 

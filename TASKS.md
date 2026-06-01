@@ -4,13 +4,13 @@
 
 ---
 
-## FASE 0 — Pré-desenvolvimento (Pendências externas)
+## FASE 0 — Pré-desenvolvimento (Pendências externas) ✅ CONCLUÍDA
 
 - [x] **P-01** ~~Confirmar path da pasta Z: no Windows~~ → Fornecido: `Z:\SS4_DADOS\00 - LEV PM`
 - [x] **P-02** ~~Confirmar path equivalente da pasta Z: no Linux~~ → Fornecido: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
-- [ ] **P-03** Definir tema visual padrão (claro ou escuro)
-- [ ] **P-04** Confirmar tamanho máximo possível de uma matrícula (até 7 dígitos ou mais?)
-- [ ] **P-05** Definir comportamento ao sobrescrever arquivo já existente no destino (sobrescreve silencioso / pergunta / cria cópia com sufixo)
+- [x] **P-03** ~~Definir tema visual padrão (claro ou escuro)~~ → **Escuro** (padrão no CSS)
+- [x] **P-04** ~~Confirmar tamanho máximo possível de uma matrícula (até 7 dígitos ou mais?)~~ → **Máximo 8 dígitos**
+- [x] **P-05** ~~Definir comportamento ao sobrescrever arquivo já existente no destino (sobrescreve silencioso / pergunta / cria cópia com sufixo)~~ → **Criar cópia com sufixo** (timestamp)
 
 ---
 
@@ -106,6 +106,12 @@
   - Procura entradas cujo nome começa com `matricula.digitos` OU `matricula.com_hifen` (case-insensitive)
   - Retorna a primeira pasta encontrada
   - **NÃO** deriva a subpasta do tamanho da matrícula para busca
+- [x] **T-15b** Implementar função `encontrar_todos_militares(raiz: &Path, matricula: &Matricula) -> Result<Vec<PathBuf>, AppError>`:
+  - **Busca flat completa** — itera todas as subpastas da raiz
+  - Encontra **todos** os entries (pastas e arquivos) cujo nome comece com a matrícula
+  - Match por: `digitos`, `com_hifen`, ou nome sem hífen começando com `digitos`
+  - Case-insensitive
+  - Retorna `Vec<PathBuf>` com todos os matches encontrados
 - [ ] **T-16** Implementar função `criar_pasta_militar(raiz: &Path, matricula: &Matricula, nome_completo: &str) -> Result<PathBuf, AppError>`:
   - **Calcula subpasta correta** (`tamanho - 2`)
   - Se subpasta **não existe** → cria a subpasta
@@ -127,6 +133,10 @@
   - Testar busca não encontrando pasta
   - Testar criação de pasta nova
   - Testar cópia de arquivo
+- [x] **T-19b** Testes de busca flat completa (`encontrar_todos_militares`):
+  - Testar busca encontrando matches em múltiplas subpastas
+  - Testar busca encontrando arquivo solto (não pasta)
+  - Testar busca retornando vazio quando não há matches
 
 ### 2.3 Módulo: Config (`core/config.rs`)
 
@@ -184,14 +194,16 @@
 
 ### 3.2 Comando: Buscar Matrícula (`commands/buscar.rs`)
 
-- [ ] **T-29** Implementar comando `#[tauri::command] buscar_matricula(raiz: String, matricula: String) -> Result<BuscaResult, String>`:
-  - Localiza pasta do militar
-  - Copia recursivamente para `~/Downloads/Busca-Matriculas/{matricula}/`
+- [x] **T-29** Implementar comando `#[tauri::command] buscar_matricula(raiz: String, matricula: String) -> Result<BuscaResult, String>`:
+  - Usa `encontrar_todos_militares` para busca flat completa
+  - Copia **todos** os matches (pastas e arquivos) mesclados em `~/Downloads/Busca-Matriculas/{matricula-com-hifen}/`
+  - Pastas são copiadas recursivamente, arquivos individualmente
   - Se destino já existe, retorna status `"ja_existe"` com path para o frontend decidir
-  - Retorna `{ status, path_destino, arquivos_copiados }`
+  - Retorna `{ status, path_destino, arquivos_copiados, matches_encontrados }`
 
-- [ ] **T-30** Implementar comando `#[tauri::command] confirmar_sobrescrita_busca(raiz: String, matricula: String) -> Result<BuscaResult, String>`:
-  - Mesmo que `buscar_matricula` mas force sobrescrita
+- [x] **T-30** Implementar comando `#[tauri::command] confirmar_sobrescrita_busca(raiz: String, matricula: String) -> Result<BuscaResult, String>`:
+  - Mesmo que `buscar_matricula` mas remove destino existente antes de copiar
+  - Usa busca flat completa com `encontrar_todos_militares`
 
 ### 3.3 Comando: Configurações (`commands/config.rs`)
 

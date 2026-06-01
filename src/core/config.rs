@@ -28,7 +28,7 @@ impl Default for AppConfig {
     fn default() -> Self {
         AppConfig {
             pasta_raiz: None,
-            politica_sobrescrita: PoliticaSobrescrita::Sobrescrever,
+            politica_sobrescrita: PoliticaSobrescrita::RenomearComSufixo,
             tema: Tema::default(),
         }
     }
@@ -49,11 +49,9 @@ impl AppConfig {
             return Ok(AppConfig::default());
         }
 
-        let conteudo = fs::read_to_string(&path).map_err(|e| {
-            AppError::ErroDeIO {
-                path: path.to_string_lossy().to_string(),
-                fonte: e.to_string(),
-            }
+        let conteudo = fs::read_to_string(&path).map_err(|e| AppError::ErroDeIO {
+            path: path.to_string_lossy().to_string(),
+            fonte: e.to_string(),
         })?;
 
         serde_json::from_str(&conteudo).map_err(|e| AppError::ErroDeSerializacao(e.to_string()))
@@ -63,22 +61,18 @@ impl AppConfig {
         let path = Self::path();
 
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent).map_err(|e| {
-                AppError::ErroDeIO {
-                    path: parent.to_string_lossy().to_string(),
-                    fonte: e.to_string(),
-                }
+            fs::create_dir_all(parent).map_err(|e| AppError::ErroDeIO {
+                path: parent.to_string_lossy().to_string(),
+                fonte: e.to_string(),
             })?;
         }
 
         let conteudo = serde_json::to_string_pretty(self)
             .map_err(|e| AppError::ErroDeSerializacao(e.to_string()))?;
 
-        fs::write(&path, conteudo).map_err(|e| {
-            AppError::ErroDeIO {
-                path: path.to_string_lossy().to_string(),
-                fonte: e.to_string(),
-            }
+        fs::write(&path, conteudo).map_err(|e| AppError::ErroDeIO {
+            path: path.to_string_lossy().to_string(),
+            fonte: e.to_string(),
         })?;
 
         Ok(())

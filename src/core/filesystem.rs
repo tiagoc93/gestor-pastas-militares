@@ -1,10 +1,12 @@
 use crate::core::matricula::Matricula;
 use crate::errors::AppError;
+use serde::{Deserialize, Serialize};
+use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// Enum que define o comportamento quando o arquivo já existe no destino
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum PoliticaSobrescrita {
     Sobrescrever,
     Pular,
@@ -47,6 +49,48 @@ pub fn encontrar_pasta_militar(
     }
 
     Ok(None)
+}
+
+/// Busca flat: encontra TODOS os entries (pastas e arquivos) cujo nome começa
+/// com a matrícula, em todas as subpastas da raiz.
+pub fn encontrar_todos_militares(
+    raiz: &Path,
+    matricula: &Matricula,
+) -> Result<Vec<PathBuf>, AppError> {
+    let mut resultados = Vec::new();
+
+    if !raiz.exists() {
+        return Ok(resultados);
+    }
+
+    let digitos_lower = matricula.digitos.to_lowercase();
+    let hifen_lower = matricula.com_hifen.to_lowercase();
+
+    for subpasta_entry in fs::read_dir(raiz)? {
+        let subpasta_entry = subpasta_entry?;
+        let subpasta_path = subpasta_entry.path();
+
+        if !subpasta_path.is_dir() {
+            continue;
+        }
+
+        for entry in fs::read_dir(&subpasta_path)? {
+            let entry = entry?;
+            let nome = entry.file_name();
+            let nome_lower = nome.to_string_lossy().to_lowercase();
+            let nome_sem_hifen = nome_lower.replace("-", "");
+
+            let matchou = nome_lower.starts_with(&digitos_lower)
+                || nome_lower.starts_with(&hifen_lower)
+                || nome_sem_hifen.starts_with(&digitos_lower);
+
+            if matchou {
+                resultados.push(entry.path());
+            }
+        }
+    }
+
+    Ok(resultados)
 }
 
 /// Cria a pasta de um novo militar.
@@ -152,7 +196,7 @@ pub fn copiar_pasta_recursiva(origem: &Path, destino: &Path) -> Result<CopyStats
     Ok(stats)
 }
 
-fn split_file_stem_ext(nome: &Path) -> (String, String) {
+fn split_file_stem_ext(nome: &OsStr) -> (String, String) {
     let nome_str = nome.to_string_lossy();
     if let Some(dot_pos) = nome_str.rfind('.') {
         if dot_pos > 0 {
@@ -221,5 +265,51 @@ mod tests {
         copiar_arquivo(&arquivo, &destino, PoliticaSobrescrita::Sobrescrever).unwrap();
 
         assert!(destino.join("origem.txt").exists());
+    }
+
+    #[test]
+    fn test_encontrar_todos_multiplas_subpastas() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub1 = raiz.join("11111");
+        fs::create_dir_all(&sub1).unwrap();
+        fs::create_dir(sub1.join("111111-1 - FULANO DE TAL")).unwrap();
+
+        let sub2 = raiz.join("outra");
+        fs::create_dir_all(&sub2).unwrap();
+        fs::create_dir(sub2.join("111111-1 - FULANO COPIA")).unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultados = encontrar_todos_militares(raiz, &m).unwrap();
+
+        assert_eq!(resultados.len(), 2);
+    }
+
+    #[test]
+    fn test_encontrar_todos_arquivo_solto() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let sub = raiz.join("11111");
+        fs::create_dir_all(&sub).unwrap();
+        fs::write(sub.join("111111-1 - documento.pdf"), b"conteudo").unwrap();
+
+        let m = Matricula::parse("111111-1").unwrap();
+        let resultados = encontrar_todos_militares(raiz, &m).unwrap();
+
+        assert_eq!(resultados.len(), 1);
+        assert!(resultados[0].is_file());
+    }
+
+    #[test]
+    fn test_encontrar_todos_vazio() {
+        let tmp = TempDir::new().unwrap();
+        let raiz = tmp.path();
+
+        let m = Matricula::parse("999999-9").unwrap();
+        let resultados = encontrar_todos_militares(raiz, &m).unwrap();
+
+        assert!(resultados.is_empty());
     }
 }

@@ -7,17 +7,22 @@ mod commands;
 mod core;
 mod errors;
 
+use commands::{
+    adicionar_matricula, buscar_matricula, carregar_config, confirmar_sobrescrita_busca,
+    criar_pasta_militar, enviar_documento, salvar_config, verificar_pasta_militar,
+};
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::adicionar_matricula,
-            commands::verificar_pasta_militar,
-            commands::criar_pasta_militar,
-            commands::enviar_documento,
-            commands::buscar_matricula,
-            commands::confirmar_sobrescrita_busca,
-            commands::carregar_config,
-            commands::salvar_config,
+            adicionar_matricula,
+            verificar_pasta_militar,
+            criar_pasta_militar,
+            enviar_documento,
+            buscar_matricula,
+            confirmar_sobrescrita_busca,
+            carregar_config,
+            salvar_config,
         ])
         .run(tauri::generate_context!())
         .expect("Erro ao iniciar o aplicativo");

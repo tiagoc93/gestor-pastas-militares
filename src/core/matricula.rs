@@ -29,6 +29,12 @@ impl Matricula {
             ));
         }
 
+        if digitos.len() > 8 {
+            return Err(AppError::MatriculaInvalida(
+                "Matrícula deve ter no máximo 8 dígitos".to_string(),
+            ));
+        }
+
         let com_hifen = if input.contains('-') {
             input.to_string()
         } else {
@@ -103,5 +109,19 @@ mod tests {
     fn test_parse_invalido_curto() {
         let result = Matricula::parse("11");
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_invalido_longo() {
+        let result = Matricula::parse("123456789");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_8_digitos() {
+        let m = Matricula::parse("12345678").unwrap();
+        assert_eq!(m.digitos, "12345678");
+        assert_eq!(m.com_hifen, "1234567-8");
+        assert_eq!(m.subpasta, "123456");
     }
 }
