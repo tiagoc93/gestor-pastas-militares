@@ -43,7 +43,7 @@
   - `tauri` com features: `dialog`, `fs`, `path`, `shell`
   - `dirs` (para resolver `~/Downloads` cross-platform)
   - `thiserror` (erros customizados)
-- [ ] **T-09** Criar estrutura de pastas do projeto:
+- [x] **T-09** Criar estrutura de pastas do projeto:
   ```
   src/                  ← lógica Rust
     main.rs
@@ -58,7 +58,7 @@
       filesystem.rs     ← operações de pasta/arquivo
       config.rs         ← leitura/escrita de configuração
     errors.rs
-  src-tauri/            ← gerado pelo Tauri
+  src-tauri/            ← arquivos Tauri (Cargo.toml, tauri.conf.json, build.rs)
   frontend/
     index.html
     style.css
@@ -69,8 +69,8 @@
       configuracoes.js
       log.js
   ```
-- [ ] **T-10** Configurar `.gitignore` adequado para Rust + Node + Tauri
-- [ ] **T-11** Inicializar repositório Git com commit inicial
+- [x] **T-10** Configurar `.gitignore` adequado para Rust + Node + Tauri
+- [x] **T-11** Inicializar repositório Git com commit inicial
 
 ---
 
