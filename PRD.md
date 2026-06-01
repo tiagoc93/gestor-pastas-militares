@@ -34,7 +34,7 @@ Aplicativo desktop cross-platform (Windows e Linux) para gerenciar o envio e bus
 
 **Path da rede:**
 - **Linux:** `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
-- **Windows:** `Z:\` ou `\\ss4.local\compartilhado\SS4_DADOS\00 - LEV PM`
+- **Windows:** `Z:\SS4_DADOS\00 - LEV PM`
 
 > ⚠️ **Path fornecido pelo usuário.** O app deve aceitar o path UNC/SMB diretamente — não converter nem normalizar. A pasta raiz é configurável na interface e **não deve ser hardcoded no binário**.
 

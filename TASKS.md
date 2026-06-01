@@ -6,7 +6,7 @@
 
 ## FASE 0 — Pré-desenvolvimento (Pendências externas)
 
-- [x] **P-01** ~~Confirmar path da pasta Z: no Windows (`Z:\` ou UNC `\\servidor\share`)~~ → Fornecido: `Z:\` ou `\\ss4.local\compartilhado\SS4_DADOS\00 - LEV PM`
+- [x] **P-01** ~~Confirmar path da pasta Z: no Windows~~ → Fornecido: `Z:\SS4_DADOS\00 - LEV PM`
 - [x] **P-02** ~~Confirmar path equivalente da pasta Z: no Linux~~ → Fornecido: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
 - [ ] **P-03** Definir tema visual padrão (claro ou escuro)
 - [ ] **P-04** Confirmar tamanho máximo possível de uma matrícula (até 7 dígitos ou mais?)

@@ -209,7 +209,7 @@ Na primeira execução, acesse a aba **Configurações** e defina:
 
 - **Pasta raiz (Z:):** path da pasta compartilhada de rede
   - Linux: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
-  - Windows: `Z:\` ou `\\ss4.local\compartilhado\SS4_DADOS\00 - LEV PM`
+  - Windows: `Z:\SS4_DADOS\00 - LEV PM`
 - **Política de sobrescrita:** o que fazer se o arquivo já existir no destino
 
 A configuração é salva localmente em:
