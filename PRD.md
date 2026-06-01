@@ -55,7 +55,16 @@ Z:/
 └── ...
 ```
 
-### Regra de Subpasta
+### Regra de Busca (Flat Search)
+
+> ⚠️ **Busca flat na raiz** — o app procura a pasta do militar em TODAS as subpastas da raiz, não apenas na subpasta derivada da matrícula. Rationale: militares podem estar em pastas erradas na estrutura original.
+
+Ao buscar por matrícula `1111111`:
+- Procura em `*/111111-1 *` e `*/1111111 *` em qualquer subpasta da raiz
+- Se encontrar → copia o documento lá dentro
+- Se não encontrar → cria na **subpasta correta** (`tamanho - 2`)
+
+### Regra de Subpasta (para criação)
 
 ```
 tamanho_da_matricula_sem_hifen - 2 = quantidade de dígitos da subpasta
@@ -108,20 +117,22 @@ O sistema deve aceitar a matrícula com ou sem hífen na entrada do usuário e n
 4. Usuário pode adicionar pastas extras manualmente (navegando pela Z: via file picker)
 5. Usuário seleciona o documento a enviar (file picker nativo)
 6. App processa sequencialmente cada destino:
-   - Deriva a subpasta (`tamanho - 2` dígitos)
-   - Busca a pasta da matrícula dentro da subpasta
-   - Se não encontrar: solicita o nome completo do militar e cria a pasta
-   - Copia o documento para dentro da pasta encontrada/criada
+   - **Busca flat na raiz** — procura a pasta do militar em qualquer subpasta
+   - **Se encontrar** → copia o documento lá dentro
+   - **Se não encontrar** → solicita o nome completo do militar e cria a pasta
+   - Calcula a subpasta correta (`tamanho - 2`)
+   - Se a subpasta não existe → cria a subpasta
+   - Cria a pasta do militar (`{MATRICULA-COM-HIFEN} - {NOME EM MAIÚSCULAS}`) dentro da subpasta correta
+   - Copia o documento
 7. App exibe log em tempo real: ✓ sucesso ou ✗ erro com motivo para cada destino
 
-**Busca da pasta do militar:**
-- Busca por `111111-1` ou `1111111` (com e sem hífen) dentro da subpasta
-- A pasta pode ter nome longo (ex: `111111-1 - FULANO DE TAL`) — o match deve ser por prefixo da matrícula
+**Lógica de busca e criação:**
 
-**Criação de pasta inexistente:**
-- App solicita o nome completo do militar
-- Cria a pasta com formato: `{MATRICULA-COM-HIFEN} - {NOME EM MAIÚSCULAS}`
-- Prossegue com a cópia normalmente
+| Situação | Ação |
+|---|---|
+| Pasta do militar **encontrada** (flat search) | Copia documento na pasta existente |
+| Pasta **não encontrada** + subpasta **existe** | Cria só a pasta do militar na subpasta |
+| Pasta **não encontrada** + subpasta **não existe** | Cria subpasta → cria pasta do militar → copia |
 
 **Cópia do arquivo:**
 - O arquivo é lido uma única vez em memória (RAM)
@@ -140,7 +151,7 @@ O sistema deve aceitar a matrícula com ou sem hífen na entrada do usuário e n
 **Fluxo completo:**
 
 1. Usuário digita a matrícula (com ou sem hífen)
-2. App deriva a subpasta e localiza a pasta do militar na Z:
+2. App faz **busca flat na raiz** — procura em todas as subpastas
 3. Se não encontrar: exibe mensagem de erro
 4. Se encontrar: copia a pasta inteira (com subpastas e arquivos) para:
    ```

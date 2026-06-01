@@ -101,15 +101,17 @@
 
 ### 2.2 Módulo: Filesystem (`core/filesystem.rs`)
 
-- [ ] **T-15** Implementar função `encontrar_pasta_militar(raiz: &Path, matricula: &Matricula) -> Result<Option<PathBuf>, AppError>`:
-  - Monta path da subpasta: `raiz / matricula.subpasta`
-  - Verifica se subpasta existe
-  - Itera entradas da subpasta
-  - Retorna a primeira entrada cujo nome começa com `matricula.digitos` OU `matricula.com_hifen` (case-insensitive)
+- [ ] **T-15** Implementar função `buscar_pasta_militar_flat(raiz: &Path, matricula: &Matricula) -> Result<Option<PathBuf>, AppError>`:
+  - **Busca flat na raiz** — itera todas as subpastas de raiz recursivamente
+  - Procura entradas cujo nome começa com `matricula.digitos` OU `matricula.com_hifen` (case-insensitive)
+  - Retorna a primeira pasta encontrada
+  - **NÃO** deriva a subpasta do tamanho da matrícula para busca
 - [ ] **T-16** Implementar função `criar_pasta_militar(raiz: &Path, matricula: &Matricula, nome_completo: &str) -> Result<PathBuf, AppError>`:
-  - Cria subpasta se não existir
+  - **Calcula subpasta correta** (`tamanho - 2`)
+  - Se subpasta **não existe** → cria a subpasta
+  - Se subpasta **existe** → usa a subpasta existente
   - Nome da nova pasta: `{com_hifen} - {NOME_EM_MAIÚSCULAS}`
-  - Cria a pasta do militar
+  - Cria a pasta do militar dentro da subpasta correta
   - Retorna o path criado
 - [ ] **T-17** Implementar função `copiar_arquivo(arquivo: &Path, destino_dir: &Path, politica_sobrescrita: PoliticaSobrescrita) -> Result<(), AppError>`:
   - Lê o arquivo fonte em memória uma única vez (recebe `&[u8]` já lido ou lê internamente)
