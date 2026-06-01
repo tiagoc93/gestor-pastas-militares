@@ -210,16 +210,16 @@
 
 ### 3.3 Comando: Configurações (`commands/config.rs`)
 
-- [ ] **T-31** Implementar comando `#[tauri::command] carregar_config() -> Result<AppConfigDto, String>`
-- [ ] **T-32** Implementar comando `#[tauri::command] salvar_config(config: AppConfigDto) -> Result<(), String>`
-- [ ] **T-33** Implementar comando `#[tauri::command] selecionar_pasta_raiz() -> Result<Option<String>, String>`:
+- [x] **T-31** Implementar comando `#[tauri::command] carregar_config() -> Result<AppConfigDto, String>`
+- [x] **T-32** Implementar comando `#[tauri::command] salvar_config(config: AppConfigDto) -> Result<(), String>`
+- [x] **T-33** Implementar comando `#[tauri::command] selecionar_pasta_raiz() -> Result<Option<String>, String>`:
   - Abre dialog nativo de seleção de pasta
   - Retorna path selecionado ou `None` se cancelado
 
 ### 3.4 Registro dos comandos
 
-- [ ] **T-34** Registrar todos os comandos no `main.rs` via `.invoke_handler(tauri::generate_handler![...])`
-- [ ] **T-35** Configurar permissões de `fs` e `dialog` no `tauri.conf.json` conforme necessário
+- [x] **T-34** Registrar todos os comandos no `main.rs` via `.invoke_handler(tauri::generate_handler![...])`
+- [x] **T-35** Configurar permissões de `fs` e `dialog` no `tauri.conf.json` conforme necessário
 
 ---
 
