@@ -312,16 +312,16 @@
 
 ### 5.1 Testes de integração end-to-end
 
-- [ ] **T-56** Criar pasta de teste simulando estrutura da Z: no ambiente de dev
-- [ ] **T-57** Testar fluxo completo de envio para matrícula existente
-- [ ] **T-58** Testar fluxo completo de envio para matrícula inexistente (criação de pasta)
-- [ ] **T-59** Testar envio para múltiplas matrículas (5+) em sequência
-- [ ] **T-60** Testar envio para pasta extra (path manual)
-- [ ] **T-61** Testar busca de matrícula existente
-- [ ] **T-62** Testar busca de matrícula inexistente
-- [ ] **T-63** Testar comportamento com pasta raiz não configurada
-- [ ] **T-64** Testar comportamento com pasta de rede inacessível (simular desconexão)
-- [ ] **T-65** Testar com arquivo de 50MB+ (validar leitura em RAM)
+- [x] **T-56** Criar pasta de teste simulando estrutura da Z: no ambiente de dev
+- [x] **T-57** Testar fluxo completo de envio para matrícula existente
+- [x] **T-58** Testar fluxo completo de envio para matrícula inexistente (criação de pasta)
+- [x] **T-59** Testar envio para múltiplas matrículas (5+) em sequência
+- [x] **T-60** Testar envio para pasta extra (path manual)
+- [x] **T-61** Testar busca de matrícula existente
+- [x] **T-62** Testar busca de matrícula inexistente
+- [x] **T-63** Testar comportamento com pasta raiz não configurada
+- [x] **T-64** Testar comportamento com pasta de rede inacessível (simular desconexão)
+- [x] **T-65** Testar com arquivo de 50MB+ (validar leitura em RAM)
 
 ### 5.2 Testes cross-platform
 
