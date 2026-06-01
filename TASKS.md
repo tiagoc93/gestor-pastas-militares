@@ -390,3 +390,25 @@ FASE 5 (integração)
   ↓
 FASE 6 (build e distribuição)
 ```
+
+---
+
+## Fase 2+ — Próximas Implementações
+
+### F-01: Envio de múltiplos documentos
+- **Responsável:** frontend + backend
+- **Módulo:** `commands/enviar.rs`, `components/aba-enviar.js`
+- **Descrição:** Permitir selecionar múltiplos arquivos no seletor nativo e enviar todos de uma vez para os destinos selecionados
+- **Teste:** Selecionar 3 arquivos, enviar para 2 matrículas → 6 operações no log
+
+### F-02: Investigar falhas na busca de matrícula
+- **Responsável:** backend
+- **Módulo:** `core/filesystem.rs` → `encontrar_todos_militares`, `core/matricula.rs`
+- **Descrição:** A busca flat encontra algumas matrículas mas não outras — investigar edge cases
+- **Hipóteses:**
+  1. Caracteres especiais (acentos, cedilha) no nome da pasta
+  2. Case sensitivity residual em algum cenário
+  3. Subpastas com nomes não-numéricos
+  4. Deep nesting (pastas dentro de pastas)
+  5. Encoding diferente entre filesystem Linux e Windows (smb)
+- **Teste:** Criar estrutura de teste com caracteres especiais e verificar matching

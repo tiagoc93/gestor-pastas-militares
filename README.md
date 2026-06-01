@@ -165,6 +165,26 @@ Caminhos típicos:
 
 ---
 
+## Próximas implementações (Fase 2+)
+
+### F-01: Envio de múltiplos documentos
+Na tela "Enviar Documento", permitir selecionar mais de um arquivo para enviar em lote. O comportamento atual só permite 1 arquivo por envio. Precisa:
+- Permitir seleção múltipla de arquivos no seletor nativo
+- Exibir lista de arquivos selecionados antes do envio
+- Copiar cada arquivo para todos os destinos selecionados
+- Log individual por arquivo no log de envio
+
+### F-02: Investigar falhas na busca de matrícula
+A busca flat (`encontrar_todos_militares`) aparentemente encontra algumas matrículas mas não outras. Possíveis causas a investigar:
+- Caracteres especiais ou espaços no nome da pasta do militar
+- Case sensitivity no matching (deve ser case-insensitive, mas pode haver edge cases)
+- Nomes que começam igual mas têm prefixos diferentes (ex: `111` matchando `1111` vs `11111`)
+- Subpastas com nomes não-numéricos sendo ignoradas
+- Encoding de caracteres especiais no filesystem Linux vs Windows
+- Pastas de militares dentro de outras pastas (deep nesting)
+
+---
+
 ## Fora de escopo (v1.0)
 
 - Edição ou visualização de documentos
