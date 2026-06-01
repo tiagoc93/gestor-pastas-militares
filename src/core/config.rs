@@ -4,17 +4,12 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Tema {
     Claro,
+    #[default]
     Escuro,
-}
-
-impl Default for Tema {
-    fn default() -> Self {
-        Tema::Escuro
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,8 +45,8 @@ impl AppConfig {
         }
 
         let conteudo = fs::read_to_string(&path).map_err(|e| AppError::ErroDeIO {
-            path: path.to_string_lossy().to_string(),
-            fonte: e.to_string(),
+            path: path.clone(),
+            fonte: e,
         })?;
 
         serde_json::from_str(&conteudo).map_err(|e| AppError::ErroDeSerializacao(e.to_string()))
@@ -62,8 +57,8 @@ impl AppConfig {
 
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).map_err(|e| AppError::ErroDeIO {
-                path: parent.to_string_lossy().to_string(),
-                fonte: e.to_string(),
+                path: parent.to_path_buf(),
+                fonte: e,
             })?;
         }
 
@@ -71,8 +66,8 @@ impl AppConfig {
             .map_err(|e| AppError::ErroDeSerializacao(e.to_string()))?;
 
         fs::write(&path, conteudo).map_err(|e| AppError::ErroDeIO {
-            path: path.to_string_lossy().to_string(),
-            fonte: e.to_string(),
+            path: path.clone(),
+            fonte: e,
         })?;
 
         Ok(())

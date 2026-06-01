@@ -120,7 +120,7 @@ pub fn enviar_documento(
                 let pasta_path = std::path::Path::new(&destino.valor);
                 crate::core::copiar_arquivo(arquivo_path, pasta_path, politica)
             }
-            _ => Err(crate::errors::AppError::PastaDestinoInvalida(destino.valor.clone())),
+            _ => Err(crate::errors::AppError::PastaDestinoInvalida(std::path::PathBuf::from(&destino.valor))),
         };
 
         let detalhe = match resultado {

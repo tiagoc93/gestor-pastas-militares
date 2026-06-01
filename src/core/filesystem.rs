@@ -38,13 +38,12 @@ pub fn encontrar_pasta_militar(
         let nome = entry.file_name();
         let nome_str = nome.to_string_lossy();
 
-        if nome_str.starts_with(&matricula.digitos)
+        if (nome_str.starts_with(&matricula.digitos)
             || nome_str.starts_with(&matricula.com_hifen)
-            || nome_str.replace("-", "").starts_with(&matricula.digitos)
+            || nome_str.replace("-", "").starts_with(&matricula.digitos))
+            && entry.file_type()?.is_dir()
         {
-            if entry.file_type()?.is_dir() {
-                return Ok(Some(entry.path()));
-            }
+            return Ok(Some(entry.path()));
         }
     }
 
@@ -131,7 +130,7 @@ pub fn copiar_arquivo(
 
     let nome_arquivo = arquivo_origem
         .file_name()
-        .ok_or_else(|| AppError::PastaDestinoInvalida("Nome de arquivo inválido".to_string()))?;
+        .ok_or_else(|| AppError::PastaDestinoInvalida(arquivo_origem.to_path_buf()))?;
 
     let mut destino_path = destino_dir.join(nome_arquivo);
 
@@ -160,10 +159,7 @@ pub fn copiar_arquivo(
 /// Copia uma pasta recursivamente para o destino.
 pub fn copiar_pasta_recursiva(origem: &Path, destino: &Path) -> Result<CopyStats, AppError> {
     if !origem.exists() {
-        return Err(AppError::PastaDestinoInvalida(format!(
-            "Pasta de origem não existe: {}",
-            origem.display()
-        )));
+        return Err(AppError::PastaDestinoInvalida(origem.to_path_buf()));
     }
 
     fs::create_dir_all(destino)?;

@@ -13,6 +13,8 @@ use commands::{
 };
 
 fn main() {
+    errors::__garantir_variants_completeness();
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             adicionar_matricula,
