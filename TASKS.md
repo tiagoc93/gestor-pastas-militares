@@ -174,19 +174,20 @@
 
 ### 3.1 Comando: Enviar Documento (`commands/enviar.rs`)
 
-- [ ] **T-25** Implementar comando `#[tauri::command] adicionar_matricula(matricula: String) -> Result<MatriculaInfo, String>`:
+- [x] **T-25** Implementar comando `#[tauri::command] adicionar_matricula(matricula: String) -> Result<MatriculaInfo, String>`:
   - Chama `Matricula::parse`
   - Retorna struct serializável com `digitos`, `com_hifen`, `subpasta`
   - Retorna erro amigável em caso de matrícula inválida
 
-- [ ] **T-26** Implementar comando `#[tauri::command] verificar_pasta_militar(raiz: String, matricula: String) -> Result<VerificacaoResult, String>`:
+- [x] **T-26** Implementar comando `#[tauri::command] verificar_pasta_militar(raiz: String, matricula: String) -> Result<VerificacaoResult, String>`:
   - Retorna `{ existe: bool, path: Option<String> }`
   - Usado para feedback antes do envio
+  - Usa `buscar_pasta_militar_flat` (flat search, não deriva subpasta)
 
-- [ ] **T-27** Implementar comando `#[tauri::command] criar_pasta_militar(raiz: String, matricula: String, nome_completo: String) -> Result<String, String>`:
+- [x] **T-27** Implementar comando `#[tauri::command] criar_pasta_militar(raiz: String, matricula: String, nome_completo: String) -> Result<String, String>`:
   - Cria a pasta e retorna o path criado
 
-- [ ] **T-28** Implementar comando `#[tauri::command] enviar_documento(payload: EnviarPayload, window: tauri::Window) -> Result<RelatorioEnvio, String>`:
+- [x] **T-28** Implementar comando `#[tauri::command] enviar_documento(payload: EnviarPayload, window: tauri::Window) -> Result<RelatorioEnvio, String>`:
   - Payload: `{ arquivo: String, destinos: Vec<Destino>, raiz: String }`
   - Destino pode ser matrícula ou path direto (pasta extra)
   - Lê o arquivo uma vez em memória
