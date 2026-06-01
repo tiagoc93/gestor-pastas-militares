@@ -4,96 +4,22 @@ Aplicativo desktop para envio e busca de documentos em pasta compartilhada de re
 
 ---
 
-## O que o app faz
-
-**Enviar documento:** selecione um arquivo e uma ou mais matrículas — o app localiza automaticamente a pasta de cada militar na rede e copia o documento para lá, sequencialmente, com log de sucesso e falha para cada destino. É possível adicionar pastas extras além das pastas dos militares.
-
-**Buscar matrícula:** digite uma matrícula e o app faz uma **busca flat** em todas as subpastas da raiz, localizando todas as pastas e arquivos cujo nome comece com a matrícula. Tudo é copiado e mesclado em `~/Downloads/Busca-Matriculas/{matricula}/`, sem precisar navegar manualmente pela estrutura de rede.
-
----
-
-## Stack
-
-| Camada | Tecnologia |
-|---|---|
-| Lógica e filesystem | Rust |
-| Framework desktop | Tauri |
-| Interface | HTML + CSS + JavaScript |
-
-**Por que Rust + Tauri:**
-- Binário único sem dependências — distribui copiando um arquivo
-- Compila nativamente para Windows e Linux
-- Erros de filesystem nunca passam silenciosos (o compilador obriga o tratamento)
-- Sem instalar Python, Node, .NET ou qualquer runtime nas máquinas dos usuários
-
----
-
-## Pré-requisitos de desenvolvimento
-
-### Rust
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustc --version  # deve retornar 1.70+
-```
-
-### Node.js (necessário para o build do Tauri)
-```bash
-# Ubuntu/Debian
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Windows: baixar instalador em https://nodejs.org
-```
-
-### Tauri CLI
-```bash
-cargo install tauri-cli
-```
-
-### Dependências do sistema (Linux apenas)
-```bash
-sudo apt install -y \
-  libwebkit2gtk-4.1-dev \
-  build-essential \
-  curl \
-  wget \
-  libssl-dev \
-  libgtk-3-dev \
-  libayatana-appindicator3-dev \
-  librsvg2-dev \
-  libsmbclient-dev  # Para suportar paths SMB/smb://
-```
-
-### Montagem da pasta de rede (Linux)
-
-O app aceita paths SMB diretamente. Opcionalmente, pode montar manualmente:
-```bash
-# Opção 1: smbclient (navegação sem montagem)
-sudo apt install smbclient
-
-# Opção 2: montagem permanente via fstab
-sudo mount -t cifs //ss4.local/compartilhado/SS4_DADOS /mnt/ss4 \
-  -o username=<user>,password=<senha>,workgroup=SS4
-```
-
-### Cross-compile para Windows (a partir do Linux)
-```bash
-rustup target add x86_64-pc-windows-gnu
-sudo apt install gcc-mingw-w64
-```
-
----
-
 ## Como rodar em desenvolvimento
 
+**Pré-requisitos:** Rust, Node.js 20+, Tauri CLI
+
 ```bash
-# clonar o repositório
-git clone <url-do-repo>
+git clone https://github.com/tiagoc93/gestor-pastas-militares.git
 cd gestor-pastas-militares
 
-# rodar em modo dev (abre a janela com hot-reload)
+# Instalar Tauri CLI (uma vez)
+cargo install tauri-cli
+
+# Rodar em modo dev
 cargo tauri dev
 ```
+
+O app abre em modo janela com hot-reload do frontend.
 
 ---
 
@@ -102,23 +28,21 @@ cargo tauri dev
 ### Linux
 ```bash
 cargo tauri build
-# gera: src-tauri/target/release/bundle/
-#   - appimage/gestor-pastas-militares.AppImage
-#   - deb/gestor-pastas-militares_*.deb
+# gera: src-tauri/target/release/bundle/appimage/gestor-pastas-militares.AppImage
+#       src-tauri/target/release/bundle/deb/gestor-pastas-militares_*.deb
 ```
 
-### Windows (a partir do Linux)
+### Windows (a partir do Linux — cross-compile)
 ```bash
+rustup target add x86_64-pc-windows-gnu
 cargo tauri build --target x86_64-pc-windows-gnu
 # gera: src-tauri/target/x86_64-pc-windows-gnu/release/gestor-pastas-militares.exe
 ```
 
-### Windows (a partir do Windows)
+### Windows (a partir do Windows — cmd/powershell)
 ```bash
 cargo tauri build
-# gera: src-tauri/target/release/bundle/
-#   - msi/gestor-pastas-militares_*.msi
-#   - nsis/gestor-pastas-militares_*.exe
+# gera: src-tauri/target/release/bundle/nsis/gestor-pastas-militares_*.exe
 ```
 
 ---
@@ -127,51 +51,72 @@ cargo tauri build
 
 ```
 gestor-pastas-militares/
-├── src/                          # lógica Rust
-│   ├── main.rs                   # entry point, registro de comandos Tauri
-│   ├── errors.rs                 # enum AppError centralizado
+├── Cargo.toml                    # workspace root (lib + bin)
+├── Cargo.lock
+├── src/
+│   ├── main.rs                   # entry point — registro de comandos Tauri
+│   ├── lib.rs                    # exporting dos módulos (pub mod)
+│   ├── errors.rs                 # enum AppError centralizado + testes
 │   ├── commands/
-│   │   ├── mod.rs
-│   │   ├── enviar.rs             # comandos da função Enviar Documento
-│   │   ├── buscar.rs             # comandos da função Buscar Matrícula
-│   │   └── config.rs             # comandos de configuração
+│   │   ├── mod.rs                # pub use ... (re-exports)
+│   │   ├── enviar.rs             # comandos Tauri: enviar_documento, adicionar_matricula, criar_pasta_militar, verificar_pasta_militar
+│   │   ├── buscar.rs             # comandos Tauri: buscar_matricula, confirmar_sobrescrita_busca
+│   │   └── config.rs             # comandos Tauri: carregar_config, salvar_config, selecionar_pasta_raiz, selecionar_arquivo
 │   └── core/
-│       ├── mod.rs
-│       ├── matricula.rs          # parsing e normalização de matrícula
-│       ├── filesystem.rs         # operações de pasta e arquivo
-│       └── config.rs             # leitura/escrita da config local
-├── frontend/                     # interface HTML/CSS/JS
-│   ├── index.html
-│   ├── style.css
-│   ├── app.js                    # utilitários compartilhados
+│       ├── mod.rs                # pub use ... (re-exports)
+│       ├── matricula.rs          # parsing e normalização de matrícula + testes
+│       ├── filesystem.rs         # operações de pasta/arquivo + testes
+│       └── config.rs            # leitura/escrita de config local (AppConfig) + testes
+├── frontend/
+│   ├── index.html                # estrutura HTML com tabs + modais
+│   ├── style.css                 # design system OLED Dark
+│   ├── app.js                    # utilitários (toast, log)
 │   └── components/
-│       ├── aba-enviar.js
-│       ├── aba-buscar.js
-│       ├── configuracoes.js
-│       └── log.js
-├── src-tauri/                    # configuração do Tauri (gerado)
-│   ├── tauri.conf.json
-│   ├── Cargo.toml
-│   └── icons/
-├── Cargo.toml
-├── PRD.md
-├── TASKS.md
+│       ├── aba-enviar.js         # tab Enviar Documento
+│       ├── aba-buscar.js         # tab Buscar Matrícula
+│       └── configuracoes.js      # tab Configurações
+├── src-tauri/
+│   ├── Cargo.toml                # pacote Tauri (lib + bin pointing to ../src/)
+│   ├── build.rs                  # tauri_build::build()
+│   ├── tauri.conf.json           # título, tamanho, CSP, bundling
+│   └── icons/                    # ícones do app (icon.png, icon.ico, etc)
+├── capabilities/
+│   └── main.json                 # permissões filesystem e dialog
+├── tests/
+│   └── integration_tests.rs      # testes de integração
+├── gen/schemas/                  # gerado pelo Tauri (não editar)
+├── icons/                        # ícones do repositório (backup)
+├── PRD.md                        # Product Requirements Document
+├── TASKS.md                      # checklist de desenvolvimento
 └── README.md
 ```
 
 ---
 
-## Regras de Negócio Principais
+## Stack
+
+- **Lógica e filesystem:** Rust
+- **Framework desktop:** Tauri v2
+- **Interface:** HTML + CSS + JavaScript (vanilla)
+- **Build output:** binário único (~3-5 MB), sem runtime
+
+**Por que Rust + Tauri:**
+- Binário único sem dependências — distribui copiando um arquivo
+- Compila nativamente para Windows e Linux
+- Erros de filesystem nunca passam silenciosos
+- Nenhuma dependência de runtime nas máquinas dos usuários
+
+---
+
+## Regras de Negócio
 
 ### Matrícula
+- Aceita com ou sem hífen: `1111111` e `111111-1` são equivalentes
+- Hífen sempre entre penúltimo e último dígito
+- Tamanho: 3 a 8 dígitos
 
-- Aceita entrada com ou sem hífen: `1111111` e `111111-1` são equivalentes
-- O hífen sempre fica entre o penúltimo e o último dígito
-- Tamanho: de 3 a 8 dígitos
-
-### Subpasta na Z:
-
-A pasta raiz da rede é organizada em subpastas cujo nome tem `tamanho_da_matrícula - 2` dígitos:
+### Subpasta na rede
+A raiz é organizada em subpastas de `tamanho - 2` dígitos:
 
 | Matrícula | Dígitos | Subpasta |
 |---|---|---|
@@ -181,56 +126,30 @@ A pasta raiz da rede é organizada em subpastas cujo nome tem `tamanho_da_matrí
 | `9207901` | 7 | `92079/` |
 
 ### Nome da pasta do militar
-
 ```
-{MATRICULA-COM-HIFEN} - {NOME COMPLETO EM MAIÚSCULAS}
-
-Exemplos:
-  111111-1 - FULANO DE TAL
-  92079-1 - CICLANO DE TAL
+{MATRÍCULA-COM-HIFEN} - {NOME EM MAIÚSCULAS}
+Ex: 111111-1 - FULANO DE TAL
 ```
 
-### Busca de pasta (Flat Search)
-
-A busca é **flat**: itera por **todas** as subpastas da raiz procurando entries (pastas ou arquivos) cujo nome comece com a matrícula (com ou sem hífen), case-insensitive.
-
-- Encontra **todos** os matches (não apenas o primeiro)
-- Copia pastas recursivamente e arquivos individualmente
-- Mescla tudo na mesma pasta de destino: `~/Downloads/Busca-Matriculas/{matricula-com-hifen}/`
-- Se a pasta de destino já existir, pergunta se deseja sobrescrever
-
-**Exemplo:** buscando por `1111111`, o app encontra tanto `111111-1 - FULANO DE TAL` quanto `1111111 - OUTRO NOME` em qualquer subpasta da raiz.
-
-### Criação de pasta
-
-Se a pasta do militar não existir, o app solicita o nome completo e cria:
-```
-Z:/{subpasta}/{matricula-com-hifen} - {NOME EM MAIÚSCULAS}/
-```
+### Busca flat
+Itera **todas** as subpastas da raiz procurando entries cujo nome comece com a matrícula, case-insensitive. Não deriva subpasta — encontra militares mesmo que estejam em pasta errada.
 
 ---
 
 ## Configuração
 
-Na primeira execução, acesse a aba **Configurações** e defina:
+O app salva config em:
+- **Linux:** `~/.config/gestor-militar/config.json`
+- **Windows:** `%APPDATA%\gestor-militar\config.json`
 
-- **Pasta raiz (Z:):** path da pasta compartilhada de rede
-  - Linux: `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
-  - Windows: `Z:\SS4_DADOS\00 - LEV PM`
-- **Política de sobrescrita:** o que fazer se o arquivo já existir no destino (padrão: criar cópia com sufixo timestamp)
+Parâmetros:
+- `pasta_raiz`: path da pasta compartilhada de rede
+- `politica_sobrescrita`: `sobrescrever`, `pular` ou `renomear`
+- `tema`: `escuro` (padrão) ou `claro`
 
-A configuração é salva localmente em:
-- Linux: `~/.config/gestor-militar/config.json`
-- Windows: `%APPDATA%\gestor-militar\config.json`
-
----
-
-## Comportamentos importantes
-
-- O app **nunca move ou apaga** arquivos da pasta compartilhada — apenas lê e escreve
-- O arquivo a ser enviado é **lido uma vez em memória** e copiado sequencialmente para todos os destinos (sem reler do disco a cada cópia)
-- Uma falha em um destino **não interrompe** os demais — o log registra cada resultado individualmente
-- O app funciona **completamente offline** — nenhuma chamada de rede além do acesso à pasta compartilhada
+Caminhos típicos:
+- **Linux:** `smb://ss4.local/compartilhado/SS4_DADOS/00 - LEV PM`
+- **Windows:** `Z:\SS4_DADOS\00 - LEV PM`
 
 ---
 
@@ -253,9 +172,4 @@ A configuração é salva localmente em:
 - Histórico de envios em banco de dados
 - Sincronização automática ou watcher de pasta
 - Envio em paralelo
-
----
-
-## Licença
-
-*(a definir)*
+- Tema claro

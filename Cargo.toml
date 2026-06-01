@@ -5,14 +5,11 @@ edition = "2021"
 
 [lib]
 name = "gestor_pastas_militares"
-path = "../src/lib.rs"
+path = "src/lib.rs"
 
 [[bin]]
 name = "gestor-pastas-militares"
-path = "../src/main.rs"
-
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
+path = "src/main.rs"
 
 [dependencies]
 tauri = { version = "2", features = [] }
@@ -28,3 +25,6 @@ env_logger = "0.11"
 
 [dev-dependencies]
 tempfile = "3"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
