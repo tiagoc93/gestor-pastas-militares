@@ -54,3 +54,22 @@ pub fn salvar_config(config: AppConfigDto) -> Result<(), String> {
     let app_config: AppConfig = config.into();
     app_config.salvar().map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub fn selecionar_pasta_raiz(
+    app: tauri::AppHandle,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    use std::sync::mpsc::channel;
+
+    let (tx, rx) = channel();
+    app.dialog().file().pick_folder(move |path| {
+        let _ = tx.send(path);
+    });
+
+    let path = rx.recv().map_err(|e| e.to_string())?;
+
+    Ok(path.map(|p| p.into_path().map(|pb| pb.to_string_lossy().to_string()))
+        .transpose()
+        .map_err(|e| format!("Erro ao converter caminho: {:?}", e))?)
+}
