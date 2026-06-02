@@ -21,7 +21,7 @@ jobs:
         run: cargo install tauri-cli
 
       - name: Build Tauri
-        run: cargo tauri build --bundles none
+        run: cargo tauri build
         env:
           CARGO_HTTP_MULTIPLEXING: false
 
@@ -29,7 +29,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gestor-exe
-          path: src-tauri/target/release/*.exe
+          path: |
+            src-tauri/target/release/bundle/exe/**/*.exe
+            src-tauri/target/release/bundle/msi/**/*.msi
           retention-days: 30
 
   build-ubuntu:
@@ -50,7 +52,7 @@ jobs:
         run: cargo install tauri-cli
 
       - name: Build Tauri
-        run: cargo tauri build --bundles none
+        run: cargo tauri build
         env:
           CARGO_HTTP_MULTIPLEXING: false
 
@@ -74,7 +76,7 @@ jobs:
         run: cargo install tauri-cli
 
       - name: Build Tauri
-        run: cargo tauri build --bundles none
+        run: cargo tauri build
         env:
           CARGO_HTTP_MULTIPLEXING: false
 
