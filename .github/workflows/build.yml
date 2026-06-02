@@ -8,65 +8,79 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: 'ubuntu-latest'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
-          - platform: 'macos-latest'
-            args: ''
-
-    runs-on: ${{ matrix.platform }}
-
+  build-windows:
+    runs-on: windows-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Rust stable
-        uses: dtolnay/rust@stable
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Install dependencies (Linux)
-        if: matrix.platform == 'ubuntu-latest'
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Build Tauri
+        run: cargo tauri build --bundles none
+        env:
+          CARGO_HTTP_MULTIPLEXING: false
+
+      - name: Upload .exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestor-exe
+          path: src-tauri/target/release/*.exe
+          retention-days: 30
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install Tauri CLI
-        run: |
-          cargo install tauri-cli --locked
+        run: cargo install tauri-cli
 
-      - name: Build Tauri app
-        run: |
-          cargo tauri build --bundles none 2>&1 || true
-          # Get the exe path
-          find src-tauri/target/release/bundle -name "*.exe" -type f 2>/dev/null || echo "no exe found"
+      - name: Build Tauri
+        run: cargo tauri build --bundles none
+        env:
+          CARGO_HTTP_MULTIPLEXING: false
 
-      - name: Upload Windows .exe
-        if: matrix.platform == 'windows-latest'
+      - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gestor-pastas-militares-exe
-          path: |
-            src-tauri/target/release/bundle/exe/**/*.exe
-            src-tauri/target/release/*.exe
+          name: gestor-deb
+          path: src-tauri/target/release/bundle/deb/*.deb
           retention-days: 30
 
-      - name: Upload Linux deb
-        if: matrix.platform == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: gestor-pastas-militares-deb
-          path: src-tauri/target/release/bundle/deb/**/*.deb
-          retention-days: 30
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Upload macOS app
-        if: matrix.platform == 'macos-latest'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Build Tauri
+        run: cargo tauri build --bundles none
+        env:
+          CARGO_HTTP_MULTIPLEXING: false
+
+      - name: Upload .app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gestor-pastas-militares-dmg
-          path: src-tauri/target/release/bundle/dmg/**/*.dmg
+          name: gestor-app
+          path: src-tauri/target/release/bundle/app/*.app
           retention-days: 30
